@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}
+	Menu | {{ category.name }}
+{% endblock %}
+
+
+{% block body %}
+	<div id="main-container" class="container">
+		<div id="sidebar" class="container">
+			{% for category in categories %}
+			<a href="{% url 'menu' category.id %}">
+				<div class="category-btn">	{{ category.name }} </div>
+			</a>
+			{% endfor %}
+		</div>
+		<div id="category-detail" class="container">
+			{% block detail %} {% endblock %}
+		</div>
+		<div id="sidebar-right" class="container sidebar">
+			<h1>Cart</h1>
+		</div>
+	</div> 
+{% endblock %}

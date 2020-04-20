@@ -4,15 +4,22 @@ from django.contrib.auth.models import User
 
 class Category(models.Model):
 	name = models.CharField(max_length=64)
+	is_pizza_category = models.BooleanField(default=False)
+	sort_order = models.IntegerField()
 
 	class Meta:
 		verbose_name_plural = 'Categories'
+		ordering = ['sort_order']
 	
 	def __str__(self):
 		return f'{self.name}'
 
 class Size(models.Model):
 	name = models.CharField(max_length=64)
+	sort_order = models.IntegerField()
+
+	class Meta:
+		ordering = ['sort_order']
 	
 	def __str__(self):
 		return f'{self.name}'
@@ -24,6 +31,10 @@ class MenuItem(models.Model):
 	is_special = models.BooleanField(default=False)
 	category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='menu_items')
 	size = models.ForeignKey(Size, on_delete=models.CASCADE, blank=True, null=True, related_name='menu_items')
+	sort_order = models.IntegerField()
+
+	class Meta:
+		ordering = ['sort_order']
 
 	def __str__(self):
 		return f'{self.category}: {self.name} | {self.price}'
@@ -33,6 +44,10 @@ class MenuItemAddon(models.Model):
 	name = models.CharField(max_length=64)
 	price = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
 	allowed_for = models.ManyToManyField(MenuItem, blank=True, related_name='allowed_addons')
+	sort_order = models.IntegerField()
+
+	class Meta:
+		ordering = ['sort_order']
 	
 
 	def __str__(self):

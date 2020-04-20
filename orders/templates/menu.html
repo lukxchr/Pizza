@@ -1,0 +1,35 @@
+{% extends "menu_base.html" %}
+
+{% block detail %} 
+
+
+	<table>
+		<tr>
+		{% for header_cell in menu_header %}
+			<td>{{header_cell}}</td>
+		{% endfor %}
+		</tr>
+		{% for data_row in menu_data %}
+		<tr>
+			{% for data_cell in data_row %}
+				{% if forloop.counter0 == 0 %}
+					<td>{{ data_cell }}</td>
+				{% else %}
+					<td>
+						<form method="POST", action="/">
+						{% csrf_token %}
+						{{ data_cell.price }}<br>
+						{% for addon in data_cell.allowed_addons.all %}
+						<label>+ {{ addon.name }} (${{ addon.price }})</label>
+						<input type="checkbox" value="{{ addon.id }}"></br>
+						{% endfor %}
+						<input type="submit" value="Add to cart">
+						</form>
+					</td>
+				{% endif %}
+			{% endfor %}
+		</tr>
+		{% endfor %}
+	</table>
+
+{% endblock %}

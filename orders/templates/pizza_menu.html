@@ -1,0 +1,17 @@
+{% extends "menu_base.html" %}
+
+
+
+{% block detail %} 
+	
+	<form method="post" action="{% url 'add_to_cart' %}">
+		  {% csrf_token %}
+		<table>
+			{{ form.as_table }}
+		</table>
+		  <button type="submit">Add to Cart</button>
+	</form>
+
+
+
+{% endblock %}

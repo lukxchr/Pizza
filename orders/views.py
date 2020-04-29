@@ -12,6 +12,8 @@ from .models import Category, Size, MenuItem, MenuItemAddon, User
 from .forms import PizzaOrderForm, SignUpForm
 from django.contrib.auth.forms import AuthenticationForm
 
+from collections import OrderedDict
+
 
 
 @login_required
@@ -63,31 +65,25 @@ def menu(request, category_id):
 		raise Http404("Category does not exist")
 
 	menu_items = MenuItem.objects.filter(category=category) 
-	distinct_sizes = set([menu_item.size for menu_item in menu_items])
-	distinct_names = menu_items.order_by('name').values_list('name', flat=True).distinct()
+	#build list with distinct sizes/item names while keeping order 
+	distinct_sizes = list(OrderedDict.fromkeys(menu_item.size for menu_item in menu_items))
+	distinct_item_names = list(OrderedDict.fromkeys(menu_item.name for menu_item in menu_items))
 
-	menu_data = []
-	for name in distinct_names:
+
+	header = [None] + [size.name if size else '' for size in distinct_sizes]
+	rows = []
+	for name in distinct_item_names:
 		row = [name]
 		for size in distinct_sizes:
 			item = menu_items.filter(name=name, size=size).first()
 			row.append(item if item else None)
-		menu_data.append(row)
+		rows.append(row)
+
+	context = {'header' : header, 'rows': rows, 
+	'categories' : Category.objects.all()}
+	return render(request, 'menu.html', context=context)
 
 
-	context = {
-		'menu_data' : menu_data,
-		'menu_header' : [None] + list(distinct_sizes),
-		'categories' : Category.objects.all(),
-		'category' : category,
-	}
-
-	if category.is_pizza_category:
-		context['form'] = PizzaOrderForm(menu_items, menu_items.first().allowed_addons.all())
-		return render(request, 'pizza_menu.html', context=context)
-	else:
-		distinct_item_names = menu_items.values_list('name', flat=True).distinct()
-		return render(request, 'menu.html', context=context)
 
 def add_to_cart(request):
 	print(request.POST.getlist('toppings'))

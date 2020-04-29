@@ -1,17 +1,54 @@
-{% extends "menu_base.html" %}
+{% extends "base.html" %}
+{% load static %}
 
+{% block body %} 
+	<div id="main-container" class="container">
+		{% include "category-nav.html" %}    
+		<div id="category-detail" class="container">
+			<form method="post" action="{% url 'add_to_cart' %}" data-category="{{ category.id }}">
+		 		{% csrf_token %}
+				<table>
+					<tr>
+						<td>Choose size:</td>
+						<td>
+							<select id="pizza-size">
+								{% for size in sizes %}
+									<option value = "{{ size.id }}">{{ size.name }}</option>
+				               	{% endfor %}
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>Choose number of toppings: </td>
+						<td>
+							<select id="pizza-n-toppings" disabled></select>	
+						</td>
+					</tr>
+					<tr>
+						<td>Choose toppings:</td>
+						<td>
+							{% for topping in toppings %}
+							<input type="checkbox" name="{{ topping.name }}" value="{{ topping.id }}">
+							<label>{{ topping.name }}</label>
+							<br>
+							{% endfor %}
+						</td>
+					</tr>
+					<tr>
+						<td>Price:</td>
+						<td>
+							
+						</td>
+					</tr>
+				</table>
+				<input type="submit" value="Add to Cart">
+				
+			</form>
+		</div>
+		<div id="sidebar-right" class="container sidebar">
+			<h1>Cart</h1>
+		</div>
+	</div> 
 
-
-{% block detail %} 
-	
-	<form method="post" action="{% url 'add_to_cart' %}">
-		  {% csrf_token %}
-		<table>
-			{{ form.as_table }}
-		</table>
-		  <button type="submit">Add to Cart</button>
-	</form>
-
-
-
+	<script type="module" src="{% static 'orders/pizza_menu.js' %}"></script>
 {% endblock %}

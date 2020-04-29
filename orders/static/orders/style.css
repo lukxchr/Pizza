@@ -66,6 +66,13 @@ body {
 	background-color: rgba(0, 0, 0, 0.8);
 }
 
+.icon {
+	height: 1em;
+}
+
+.icon:hover {
+	background-color: red;
+}
 
 table {
 	border: solid;

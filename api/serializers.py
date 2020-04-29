@@ -11,7 +11,7 @@ class MenuItemSerializer(serializers.ModelSerializer):
 class MenuItemAddonSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = MenuItemAddon
-		fields = ['id', 'name', 'price', 'sort_order']
+		fields = ['id', 'name', 'price', 'allowed_for', 'sort_order']
 
 class CategorySerializer(serializers.ModelSerializer):
 	class Meta:

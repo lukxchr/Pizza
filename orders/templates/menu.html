@@ -1,35 +1,54 @@
-{% extends "menu_base.html" %}
+{% extends "base.html" %}
+{% load static %}
 
-{% block detail %} 
-
-
-	<table>
-		<tr>
-		{% for header_cell in menu_header %}
-			<td>{{header_cell}}</td>
-		{% endfor %}
-		</tr>
-		{% for data_row in menu_data %}
-		<tr>
-			{% for data_cell in data_row %}
-				{% if forloop.counter0 == 0 %}
-					<td>{{ data_cell }}</td>
-				{% else %}
+{% block body %} 
+	
+	<div id="main-container" class="container">
+		{% include "category-nav.html" %}    
+		<div id="category-detail" class="container">
+			<table>
+				<tr>
+				{% for header_cell in header %}
+					<td>{{ header_cell|default_if_none:'' }}</td>
+				{% endfor %}
+				</tr>
+				{% for row in rows %}
+					<tr>
+					{% for item in row %}
 					<td>
-						<form method="POST", action="/">
-						{% csrf_token %}
-						{{ data_cell.price }}<br>
-						{% for addon in data_cell.allowed_addons.all %}
-						<label>+ {{ addon.name }} (${{ addon.price }})</label>
-						<input type="checkbox" value="{{ addon.id }}"></br>
-						{% endfor %}
-						<input type="submit" value="Add to cart">
-						</form>
+						{% if item %}
+							{% if forloop.counter0 == 0%}
+								{{ item }}
+							{% elif item.allowed_addons.count == 0 %}
+								<form method="POST" action="/">
+								{% csrf_token %}
+								{{ item.price }}
+								<input type="image" class="icon add-to-cart-btn" 
+								src="{% static 'orders/icons/square-plus.png' %}" alt="Submit Form" />
+								</form>
+							{% else %}								
+								{{item.price}}
+								<img class="icon add-to-cart-addons-btn" 
+								data-item="{{ item.id }}" data-csrf-token="{{ csrf_token }}" 
+								src="{% static 'orders/icons/square-plus.png' %}">
+							{% endif %}
+						{% else %}
+							-
+						{% endif %}
 					</td>
-				{% endif %}
-			{% endfor %}
-		</tr>
-		{% endfor %}
-	</table>
+					{% endfor %}
+					<tr>
+				{% endfor %}
+
+			</table>
+		</div>
+		<div id="sidebar-right" class="container sidebar">
+			<h1>Cart</h1>
+		</div>
+	</div> 
+	<script type="module" src="{% static 'orders/menu.js' %}"></script>
+
+
+
 
 {% endblock %}

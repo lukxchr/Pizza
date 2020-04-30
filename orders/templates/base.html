@@ -7,6 +7,17 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'orders/style.css' %}"/>
 </head>
 <body>
+	<div id="top-navbar">
+			<a href="{% url 'index' %}">Menu</a>
+		{% if user.is_authenticated %}
+			<a href="{% url 'index' %}">Orders</a>
+			<a href="{% url 'logout' %}">Log out ({{ user }})</a>
+		{% else %}
+			<a href="{% url 'login' %}">Log in</a>
+		{% endif %}
+		
+		
+	</div>
 	{% block body %}
     {% endblock %}
     <!-- popper.js & tippy.js -->
@@ -14,5 +25,6 @@
 	<script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
 	<!-- Handlebars -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
+		
 </body>
 </html>

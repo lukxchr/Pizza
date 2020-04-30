@@ -18,11 +18,10 @@ from collections import OrderedDict
 
 @login_required
 def index(request):
-	context = {
-		'categories' : Category.objects.all()
-	} 
-	return render(request, 'index.html', context=context)
-    # return HttpResponse("Project 3: TODO")
+	first_category = Category.objects.first()
+	return HttpResponseRedirect(
+		reverse('menu', kwargs={'category_id' : first_category.id}))
+ 
 
 
 def login_view(request):

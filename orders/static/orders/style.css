@@ -46,6 +46,16 @@ body {
 	background-color: rgba(0, 0, 0, 0.6);
 }
 
+#top-navbar {
+	position: fixed;
+	top: 0%;
+	right: 0%;
+	width: 20%;
+	padding: 3px;
+	background-color: rgba(0, 0, 0, 0.6);
+
+}
+
 #category-detail {
 	position: absolute;
 	left: 26.5%;

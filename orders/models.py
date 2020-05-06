@@ -1,6 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class StandardStrMixin():
+	def __str__(self):
+		fields = [f'{field.name}: {getattr(self, field.name)}' for field in self.__class__._meta.fields]
+		return f"{type(self).__name__}: {', '.join(fields)}"
+
 
 class Category(models.Model):
 	name = models.CharField(max_length=64)
@@ -85,34 +90,35 @@ ORDER_STATUS_CHOICES = [
 class Order(models.Model):
 	status = models.CharField(max_length=10, choices=ORDER_STATUS_CHOICES, default='Pending')
 	creation_datetime = models.DateTimeField(auto_now_add=True)
-	delivery_address = models.ForeignKey(Address, on_delete=models.PROTECT)
+	delivery_address = models.ForeignKey(Address, on_delete=models.PROTECT, blank=True, null=True)
 	customer = models.ForeignKey(User, on_delete=models.CASCADE)
 
 	@property
 	def total_price(self):
-		return sum(order_item.price for order_item in self.order_items)
+		return sum(order_item.price for order_item in self.order_items.all())
 	
 
 	def __str__(self):
-		return f'Order created at {self.creation_datetime} by customer {self.customer}'
+		return f'Order created at {self.creation_datetime} by customer {self.customer}.'
 
 
-class OrderItem(models.Model):
+class OrderItem(StandardStrMixin, models.Model):
 	menu_item = models.ForeignKey(MenuItem, on_delete = models.CASCADE)
 	order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
 
 	@property
 	def price(self):
-		return self.menu_item.price + sum(addon.price for addon in self.addons)	
+		return self.menu_item.price + sum(addon.menu_item_addon.price for addon in self.addons.all())	
 
-	def __str__(self):
-		return f'OrderItem: {self.menu_item} | price: {self.price}'
+	# def __str__(self):
+	# 	return f'OrderItem: {self.menu_item} | price: {self.price}'
 
-class OrderItemAddon(models.Model):
+class OrderItemAddon(StandardStrMixin, models.Model):
 	menu_item_addon = models.ForeignKey(MenuItemAddon, on_delete=models.CASCADE)
 	order_item = models.ForeignKey(OrderItem, on_delete=models.CASCADE, related_name='addons')
+	
 
-	def __str__(self):
-		return f'OrderItemAddon: {self.menu_item_addon}'
+	# def __str__(self):
+	# 	return f'OrderItemAddon: {self.menu_item_addon}'
 
 

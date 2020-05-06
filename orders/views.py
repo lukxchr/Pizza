@@ -1,13 +1,13 @@
 from django.contrib.auth import authenticate, login, logout
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView
 
 
-from .models import Category, Size, MenuItem, MenuItemAddon, User
+from .models import Category, Size, MenuItem, MenuItemAddon, User, Address, Order, OrderItem, OrderItemAddon
 
 from .forms import PizzaOrderForm, SignUpForm
 from django.contrib.auth.forms import AuthenticationForm
@@ -85,8 +85,40 @@ def menu(request, category_id):
 
 
 def add_to_cart(request):
-	print(request.POST.getlist('toppings'))
-	return HttpResponse(request.POST.getlist('toppings'))
+	if request.method != 'POST':
+		raise Http404('Method not allowed')
+
+	item_id = request.POST.get('item_id')
+	addon_ids = request.POST.getlist('addon')
+	try:
+		menu_item = MenuItem.objects.get(pk=item_id)
+		addons = [MenuItemAddon.objects.get(pk=id_) for id_ in addon_ids]
+	except MenuItem.DoesNotExist:
+		raise Http404('MenuItem does not exist')
+	except MenuItemAddon.DoesNotExist:
+		raise Http404('MenuItemAddon does not exist')
+
+	if len([addon for addon in addons if addon.price == 0]) != menu_item.n_addons:
+		return JsonResponse({
+			'message' : f'Please choose exactly {menu_item.n_addons} toppings'}, status=400)
+		
+	#try to retrieve Pending order (for any user there is at most one Pending order at any time)
+	#if it failes create a new order
+	try:
+		order = Order.objects.get(customer=request.user, status='Pending')
+	except Order.DoesNotExist:
+		order = Order(customer=request.user)
+	finally:
+		#create OrderItem and related OrderItemAddons. Commit changes 
+		order_item = OrderItem(menu_item=menu_item, order=order)
+		order.save()
+		order_item.save()
+		for addon in addons:
+			order_addon = OrderItemAddon(menu_item_addon=addon, order_item=order_item)
+			order_addon.save()
+		
+	return JsonResponse({'message' : 'Item added to cart.'})
+
 	
 	
 	

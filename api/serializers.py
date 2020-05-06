@@ -22,3 +22,23 @@ class SizeSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Size 
 		fields = ['id', 'name']
+
+class AddressSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Address
+		fields = ['id', 'name', 'address1', 'address2', 'zip_code', 'city', 'user']
+
+class OrderSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Order 
+		fields = ['id', 'status', 'creation_datetime', 'delivery_address', 'customer']
+
+class OrderItemSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = OrderItem
+		fields = ['id', 'menu_item', 'order', 'price']
+
+class OrderItemAddonSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = OrderItemAddon
+		fields = ['id', 'menu_item_addon', 'order_item']

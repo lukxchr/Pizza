@@ -66,3 +66,43 @@ class SizeView(generics.ListAPIView):
 class DetailSizeView(generics.RetrieveAPIView):
 	queryset = Size.objects.all()
 	serializer_class = SizeSerializer
+
+class AddressView(generics.ListCreateAPIView):
+	queryset = Address.objects.all()
+	serializer_class = AddressSerializer
+	#enable filtering by any exposed field
+	filterset_fields = serializer_class.Meta.fields
+
+class AddressDetailView(generics.RetrieveUpdateDestroyAPIView):
+	queryset = Address.objects.all()
+	serializer_class = AddressSerializer
+
+class OrderView(generics.ListCreateAPIView):
+	queryset = Order.objects.all()
+	serializer_class = OrderSerializer
+	#enable filtering by any exposed field
+	filterset_fields = serializer_class.Meta.fields
+
+class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
+	queryset = Order.objects.all()
+	serializer_class = OrderSerializer
+
+class OrderItemView(generics.ListCreateAPIView):
+	queryset = OrderItem.objects.all()
+	serializer_class = OrderItemSerializer
+	#enable filtering by any exposed field
+	filterset_fields = serializer_class.Meta.fields
+
+class OrderItemDetailView(generics.RetrieveUpdateDestroyAPIView):
+	queryset = OrderItem.objects.all()
+	serializer_class = OrderItemSerializer
+
+class OrderItemAddonView(generics.ListCreateAPIView):
+	queryset = OrderItemAddon.objects.all()
+	serializer_class = OrderItemAddonSerializer
+	#enable filtering by any exposed field
+	filterset_fields = serializer_class.Meta.fields
+
+class OrderItemAddonDetailView(generics.RetrieveUpdateDestroyAPIView):
+	queryset = OrderItemAddon.objects.all()
+	serializer_class = OrderItemAddonSerializer

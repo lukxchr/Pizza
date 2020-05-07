@@ -4,7 +4,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 # Create your views here.
 
 from orders.models import *
+from .permissions import IsAddressUser, IsOrderCustomer
 from .serializers import *
+
 
 class MenuItemView(generics.ListAPIView):
 	queryset = MenuItem.objects.all()
@@ -67,6 +69,7 @@ class DetailSizeView(generics.RetrieveAPIView):
 	queryset = Size.objects.all()
 	serializer_class = SizeSerializer
 
+#delete
 class AddressView(generics.ListCreateAPIView):
 	queryset = Address.objects.all()
 	serializer_class = AddressSerializer
@@ -74,24 +77,24 @@ class AddressView(generics.ListCreateAPIView):
 	filterset_fields = serializer_class.Meta.fields
 
 class AddressDetailView(generics.RetrieveUpdateDestroyAPIView):
+	permission_classes = (IsAddressUser,)
 	queryset = Address.objects.all()
 	serializer_class = AddressSerializer
 
 class OrderView(generics.ListCreateAPIView):
 	queryset = Order.objects.all()
 	serializer_class = OrderSerializer
-	#enable filtering by any exposed field
-	filterset_fields = serializer_class.Meta.fields
+	filterset_fields = ['id', 'status', 'creation_datetime', 'delivery_address', 'customer']
 
 class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
+	permission_classes = (IsOrderCustomer,)
 	queryset = Order.objects.all()
 	serializer_class = OrderSerializer
 
 class OrderItemView(generics.ListCreateAPIView):
 	queryset = OrderItem.objects.all()
 	serializer_class = OrderItemSerializer
-	#enable filtering by any exposed field
-	filterset_fields = serializer_class.Meta.fields
+	filterset_fields = ['id', 'menu_item', 'order']
 
 class OrderItemDetailView(generics.RetrieveUpdateDestroyAPIView):
 	queryset = OrderItem.objects.all()
@@ -100,8 +103,7 @@ class OrderItemDetailView(generics.RetrieveUpdateDestroyAPIView):
 class OrderItemAddonView(generics.ListCreateAPIView):
 	queryset = OrderItemAddon.objects.all()
 	serializer_class = OrderItemAddonSerializer
-	#enable filtering by any exposed field
-	filterset_fields = serializer_class.Meta.fields
+	filterset_fields = ['id', 'menu_item_addon', 'order_item',]
 
 class OrderItemAddonDetailView(generics.RetrieveUpdateDestroyAPIView):
 	queryset = OrderItemAddon.objects.all()

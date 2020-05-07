@@ -62,7 +62,9 @@ const add_to_cart_form_template = Handlebars.compile(`
 Handlebars.registerHelper('formatAddonPrice', price => price == 0.00 ? '' : `(+\$${price})`);
 
 
-
+function renderCart() {
+	
+}
 
 
 

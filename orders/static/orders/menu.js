@@ -15,7 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	//add to cart for items without addons
 	document.querySelectorAll('.add-to-cart-form')
 		.forEach(form => form.onsubmit = 
-			e => submit(e.target) );
+			e => submit(e.target) 
+	);
+
+	renderCart();
+
 });
 
 
@@ -44,7 +48,40 @@ async function renderAddToCart(instance) {
 		}
 }
 
+async function renderCart() {
+	//fetch existing pending order
+	let response = await fetch(`/api/orders/?status=Pending&customer=1`)
+	if (!response.ok)
+		throw 'Failed to fetch pending order.';
+	const orders = await response.json();
+	if (orders.length == 0)
+		return; //nothing to render
 
+	//fetch order details
+	const order_id = orders[0].id;
+	response = await fetch(`/api/orders/${order_id}`);
+	if (!response.ok)
+		throw 'Failed to fetch order details.';
+	const order = await response.json();
+	const total_price = order.total_price;
+	const order_items = order.order_items;
+
+	//render order 
+	const cart = cart_template({order: order})
+	const cart_body = document.querySelector('#cart-body');
+	cart_body.innerHTML = cart;
+	// console.log(order);
+
+
+	// order_items.forEach(order_item => {
+	// 	cart_body.innerHTML += order_item.menu_item.name;
+	// });
+
+	
+
+	
+
+}
 
 const add_to_cart_form_template = Handlebars.compile(`
 <form class="add-to-cart-form">
@@ -58,13 +95,32 @@ const add_to_cart_form_template = Handlebars.compile(`
 <input type=submit value="Add to Cart">
 </form>`);
 
+const cart_template = Handlebars.compile(`
+	{{#each order.order_items}}
+		{{this.menu_item.size.name}}
+		{{this.menu_item.category.name}}
+		</br>
+		{{this.menu_item.name}}
+		</br>
+		\${{this.menu_item.price}}
+		</br>
+		{{#each this.addons}}
+			+{{this.menu_item_addon.name}}
+			{{ formatAddonPrice this.menu_item_addon.price }}
+			<br/>
+		{{/each}}
+
+		<br/>
+		---
+		<br/>
+	{{/each}}
+	<div id="total-price"><h3>Total: {{ order.total_price }}</h3></div>`);
+
 //returns empty string if price==0.00 otherwise adds $ symbol in the front
 Handlebars.registerHelper('formatAddonPrice', price => price == 0.00 ? '' : `(+\$${price})`);
 
 
-function renderCart() {
-	
-}
+
 
 
 

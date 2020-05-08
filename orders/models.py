@@ -117,13 +117,13 @@ class OrderItemAddon(StandardStrMixin, models.Model):
 	menu_item_addon = models.ForeignKey(MenuItemAddon, on_delete=models.CASCADE)
 	order_item = models.ForeignKey(OrderItem, on_delete=models.CASCADE, related_name='addons')
 	
-	@property
-	def price(self):
-		return self.menu_item_addon.price
+	# @property
+	# def price(self):
+	# 	return self.menu_item_addon.price
 
-	@property
-	def order(self):
-		return self.order_item.order
+	# @property
+	# def order(self):
+	# 	return self.order_item.order
 
 	# def __str__(self):
 	# 	return f'OrderItemAddon: {self.menu_item_addon}'

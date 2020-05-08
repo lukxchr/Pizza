@@ -86,10 +86,10 @@ class OrderView(generics.ListCreateAPIView):
 	serializer_class = OrderSerializer
 	filterset_fields = ['id', 'status', 'creation_datetime', 'delivery_address', 'customer']
 
-class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
+class OrderDetailView(generics.RetrieveDestroyAPIView):
 	permission_classes = (IsOrderCustomer,)
 	queryset = Order.objects.all()
-	serializer_class = OrderSerializer
+	serializer_class = OrderDetailSerializer
 
 class OrderItemView(generics.ListCreateAPIView):
 	queryset = OrderItem.objects.all()

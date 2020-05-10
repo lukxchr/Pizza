@@ -4,12 +4,12 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView
+from django.views.generic import CreateView, UpdateView
 
 
 from .models import Category, Size, MenuItem, MenuItemAddon, User, Address, Order, OrderItem, OrderItemAddon
 
-from .forms import PizzaOrderForm, SignUpForm
+from .forms import CreateAddressForm, SignUpForm
 from django.contrib.auth.forms import AuthenticationForm
 
 from collections import OrderedDict
@@ -50,6 +50,40 @@ class SignUpView(CreateView):
 	success_url = reverse_lazy('login')
 	template_name = 'signup.html'
 
+class AddressCreateView(CreateView):
+	form_class = CreateAddressForm
+	success_url = reverse_lazy('update_order')
+	template_name = 'create_address.html'
+
+	def get_initial(self, *args, **kwargs):
+		initial = super(AddressCreateView, self).get_initial(**kwargs)
+		initial['user'] = self.request.user
+		return initial
+
+
+@login_required
+def update_order(request):
+	try:
+		order = Order.objects.get(customer=request.user, status='Pending')
+	except Order.DoesNotExist:
+		order = Order(customer=request.user)
+		order.save()
+
+	addresses = Address.objects.filter(user=request.user)
+
+	context = {
+		'order_items' : order.order_items.all(),
+		'addresses' : addresses
+		}
+
+	return render(request, 'order_update.html', context)
+	return HttpResponse("elo")
+
+
+# class OrderUpdateView(UpdateView):
+# 	model = Order
+# 	fields = ['status', 'order_items']
+# 	template_name = 'update_order.html'
 
 
 def logout_view(request):

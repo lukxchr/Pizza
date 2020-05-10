@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block body %} 
+<div id="main-container" class="container">
+	<table>
+		<tr>
+			<td>#</td>
+			<td>Item</td>
+			<td>Price</td>
+			<td>Total Price</td>
+			<td></td>
+		</tr>
+		{% for item in order_items %}
+		<tr>
+			<td>{{ forloop.counter }}</td>
+			<td>
+				{{ item.menu_item.size|default_if_none:"" }}
+				{{ item.menu_item.category }}
+				{{ item.menu_item.name }}
+			</td>
+			<td>
+				${{ item.menu_item.price }}
+			</td>
+			<td>
+				${{ item.price }}
+			</td>
+			<td>
+				<button>Delete</button>
+			</td>
+		</tr>
+
+		{% if item.addons.all %}
+		<tr>
+			<td></td>
+			<td>
+				<ul>
+				{% for addon in item.addons.all %}
+				<li>
+					{{ addon.menu_item_addon.name }}
+					(+${{ addon.menu_item_addon.price }})
+
+				</li>
+				{% endfor %}
+				
+				</ul>
+			</td>
+		</tr>
+	{% endif %}
+	{% endfor %}
+
+	</table>
+
+
+	<form method="post" action={% url "update_order" %}>
+		{% csrf_token %}
+		<label>Select existing address</label>
+		</br>
+		<select name="address">
+			{% for address in addresses %}
+				<option value={{address.id}}>{{ address }}</option>
+			{% endfor %}
+		</select>
+		</br>
+		<label>or add <a href="{% url "create_address" %}">a new one</a></label>
+		</br>
+		<input type="submit" value="Place Order">
+	</form>
+</div>
+{% endblock %}

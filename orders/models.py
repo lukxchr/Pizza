@@ -85,13 +85,22 @@ ORDER_STATUS_CHOICES = [
 	('Cancelled', 'Cancelled'),
 ]
 
+PAYMENT_METHOD_CHOICES = [
+	('CardOnline', 'Online by Card'),
+	('CashOnDelivery', 'Cash on Delivery'),
+	('CardOnDelivery', 'Card on Delivery'),
+]
 
 
 class Order(models.Model):
 	status = models.CharField(max_length=10, choices=ORDER_STATUS_CHOICES, default='Pending')
 	creation_datetime = models.DateTimeField(auto_now_add=True)
+	notes = models.CharField(max_length=128, blank=True, null=True)
+	payment_method = models.CharField(max_length=16, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True)
+	delivery_time_estimate  = models.TimeField(blank=True, null=True)
 	delivery_address = models.ForeignKey(Address, on_delete=models.PROTECT, blank=True, null=True)
 	customer = models.ForeignKey(User, on_delete=models.CASCADE)
+
 
 	@property
 	def total_price(self):

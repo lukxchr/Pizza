@@ -93,16 +93,7 @@ def track_order(request, pk):
 	context = {'order' : order}
 	return render(request, 'order_track.html', context)
 
-# class TrackOrderView(DetailView):
-# 	model = Order
-# 	#fields = ['status', 'delivery_address', 'customer', 'order_items']
-# 	template_name = 'order_track.html'
 
-
-# class OrderUpdateView(UpdateView):
-# 	model = Order
-# 	fields = ['status', 'order_items']
-# 	template_name = 'update_order.html'
 
 
 def logout_view(request):

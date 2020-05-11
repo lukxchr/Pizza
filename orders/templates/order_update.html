@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block body %} 
 <div id="main-container" class="container">
@@ -11,7 +12,7 @@
 			<td></td>
 		</tr>
 		{% for item in order_items %}
-		<tr>
+		<tr data-item="{{ item.id }}">
 			<td>{{ forloop.counter }}</td>
 			<td>
 				{{ item.menu_item.size|default_if_none:"" }}
@@ -19,18 +20,25 @@
 				{{ item.menu_item.name }}
 			</td>
 			<td>
-				${{ item.menu_item.price }}
+				<p class="item-base-price">${{ item.menu_item.price }}</p>
 			</td>
 			<td>
-				${{ item.price }}
+				<p class="item-total-price" 
+					data-price="{{ item.price }}">
+					${{ item.price }}
+				</p>
 			</td>
 			<td>
-				<button>Delete</button>
+				<img class="icon rm-from-cart-btn" 
+					data-item="{{ item.id }}" 
+					data-csrf-token="{{ csrf_token }}" 
+					src="{% static 'orders/icons/trash.png' %}"
+				>
 			</td>
 		</tr>
 
 		{% if item.addons.all %}
-		<tr>
+		<tr data-item="{{ item.id }}">
 			<td></td>
 			<td>
 				<ul>
@@ -50,6 +58,7 @@
 
 	</table>
 
+	<h3 id="total-order-price">Total: <h3>
 
 	<form method="post" action={% url "update_order" %}>
 		{% csrf_token %}
@@ -66,4 +75,5 @@
 		<input type="submit" value="Place Order">
 	</form>
 </div>
+<script type="module" src="{% static 'orders/order_update.js' %}"></script>
 {% endblock %}

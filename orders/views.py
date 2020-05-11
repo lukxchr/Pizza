@@ -1,10 +1,11 @@
 from django.contrib.auth import authenticate, login, logout
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, DetailView
 
 
 from .models import Category, Size, MenuItem, MenuItemAddon, User, Address, Order, OrderItem, OrderItemAddon
@@ -78,6 +79,24 @@ def update_order(request):
 
 	return render(request, 'order_update.html', context)
 	return HttpResponse("elo")
+
+
+def track_order(request, pk):
+	try:
+		order = Order.objects.get(pk=pk)
+		if order.customer != request.user:
+			raise PermissionDenied
+	except Order.DoesNotExist:
+		raise Http404('Order does not exisit')
+
+
+	context = {'order' : order}
+	return render(request, 'order_track.html', context)
+
+# class TrackOrderView(DetailView):
+# 	model = Order
+# 	#fields = ['status', 'delivery_address', 'customer', 'order_items']
+# 	template_name = 'order_track.html'
 
 
 # class OrderUpdateView(UpdateView):

@@ -69,7 +69,7 @@ class DetailSizeView(generics.RetrieveAPIView):
 	queryset = Size.objects.all()
 	serializer_class = SizeSerializer
 
-#delete
+#delete? or add permission
 class AddressView(generics.ListCreateAPIView):
 	queryset = Address.objects.all()
 	serializer_class = AddressSerializer
@@ -96,7 +96,7 @@ class OrderItemView(generics.ListCreateAPIView):
 	serializer_class = OrderItemSerializer
 	filterset_fields = ['id', 'menu_item', 'order']
 
-class OrderItemDetailView(generics.RetrieveUpdateDestroyAPIView):
+class OrderItemDetailView(generics.RetrieveDestroyAPIView):
 	queryset = OrderItem.objects.all()
 	serializer_class = OrderItemSerializer
 
@@ -105,6 +105,6 @@ class OrderItemAddonView(generics.ListCreateAPIView):
 	serializer_class = OrderItemAddonSerializer
 	filterset_fields = ['id', 'menu_item_addon', 'order_item',]
 
-class OrderItemAddonDetailView(generics.RetrieveUpdateDestroyAPIView):
+class OrderItemAddonDetailView(generics.RetrieveDestroyAPIView):
 	queryset = OrderItemAddon.objects.all()
 	serializer_class = OrderItemAddonSerializer

@@ -97,7 +97,7 @@ class Order(models.Model):
 	creation_datetime = models.DateTimeField(auto_now_add=True)
 	notes = models.CharField(max_length=128, blank=True, null=True)
 	payment_method = models.CharField(max_length=16, choices=PAYMENT_METHOD_CHOICES, blank=True, null=True)
-	delivery_time_estimate  = models.TimeField(blank=True, null=True)
+	delivery_estimate  = models.DateTimeField(blank=True, null=True)
 	delivery_address = models.ForeignKey(Address, on_delete=models.PROTECT, blank=True, null=True)
 	customer = models.ForeignKey(User, on_delete=models.CASCADE)
 

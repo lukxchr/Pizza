@@ -88,6 +88,6 @@ class OrderDetailSerializer(serializers.ModelSerializer):
 	order_items = OrderItemDetailSerializer(many=True)
 	class Meta:
 		model= Order
-		fields = ['id', 'status', 'creation_datetime', 'delivery_address', 'customer', 'total_price', 'order_items']
+		fields = ['id', 'status', 'creation_datetime', 'notes', 'payment_method', 'delivery_estimate', 'delivery_address', 'customer', 'total_price', 'order_items']
 		read_only_fields = ['order_items']
 

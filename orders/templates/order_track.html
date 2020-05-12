@@ -4,12 +4,22 @@
 {% block body %} 
 <div id="main-container" class="container">
 
-	eeee
+	<h3>Thanks for your order!</h3>
+	<div id="order-info">
+		Order status: <span id="order-status" data-order="{{ order.id }}">{{ order.status }}</span>
+		<br>
+		Estimated delivery: <span id="delivery-estimate"> ? </span>
+	</div>
 
-	{{ order.status }}
+	<hr>
+
+	<h3>Delivery and payment details:</h3><br>
 	{{ order.delivery_address }}
-	{{ order.customer }}
-	{{ order.order_items }}
+	<br>
 
+	Payment method: {{ order.payment_method }}
+	<br>
+	Order total: ${{ order.total_price }}
+	<script type="module" src="{% static 'orders/order_track.js' %}"></script>
 </div>
 {% endblock %}

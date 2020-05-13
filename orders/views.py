@@ -5,15 +5,17 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, DetailView
+from django.views.generic import CreateView, DetailView, View
 
 
 from .models import Category, Size, MenuItem, MenuItemAddon, User, Address, Order, OrderItem, OrderItemAddon
+from .models import PAYMENT_METHOD_CHOICES
 
 from .forms import CreateAddressForm, SignUpForm
 from django.contrib.auth.forms import AuthenticationForm
 
 from collections import OrderedDict
+import datetime
 
 
 
@@ -26,7 +28,6 @@ def index(request):
 
 
 def login_view(request):
-
 	if request.method == 'POST':
 		username = request.POST['username']
 		password = request.POST['password']
@@ -43,9 +44,6 @@ def login_view(request):
 			return render(request, 'login.html')
 
 
-
-
-
 class SignUpView(CreateView):
 	form_class = SignUpForm
 	success_url = reverse_lazy('login')
@@ -53,7 +51,7 @@ class SignUpView(CreateView):
 
 class AddressCreateView(CreateView):
 	form_class = CreateAddressForm
-	success_url = reverse_lazy('update_order')
+	success_url = reverse_lazy('place_order')
 	template_name = 'create_address.html'
 
 	def get_initial(self, *args, **kwargs):
@@ -62,23 +60,50 @@ class AddressCreateView(CreateView):
 		return initial
 
 
-@login_required
-def update_order(request):
-	try:
-		order = Order.objects.get(customer=request.user, status='Pending')
-	except Order.DoesNotExist:
-		order = Order(customer=request.user)
+
+
+class PlaceOrderView(View):
+	def get(self, request):
+		try:
+			order = Order.objects.get(customer=request.user, status='Pending')
+		except Order.DoesNotExist:
+			order = Order(customer=request.user)
+			order.save()
+		addresses = Address.objects.filter(user=request.user)
+		context = {
+			'order': order,
+			'order_items' : order.order_items.all(),
+			'addresses' : addresses,
+			'payment_methods': PAYMENT_METHOD_CHOICES,
+			}
+		return render(request, 'order_update.html', context)
+
+	def post(self, request):
+		try: 
+			order = Order.objects.get(pk=request.POST['order'])
+			address = Address.objects.get(pk=request.POST['address'])
+			payment_method = request.POST['payment-method']
+			notes = request.POST['order-comments']
+		except Order.DoesNotExist:
+			raise Http404('Order does not exisit.')
+		except Address.DoesNotExist:
+			raise Http404('Address does not exisit')
+		#TO DO: validate order notes lenght 
+
+	
+		order.delivery_address = address
+		order.payment_method = payment_method
+		order.notes = notes
+		order.delivery_estimate = datetime.datetime.now() + datetime.timedelta(minutes=30)
+		order.status = 'Placed'
 		order.save()
 
-	addresses = Address.objects.filter(user=request.user)
 
-	context = {
-		'order_items' : order.order_items.all(),
-		'addresses' : addresses
-		}
 
-	return render(request, 'order_update.html', context)
-	return HttpResponse("elo")
+		return HttpResponseRedirect(reverse('track_order', kwargs={'pk' : order.pk}))
+
+
+
 
 
 def track_order(request, pk):

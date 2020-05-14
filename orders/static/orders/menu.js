@@ -129,8 +129,11 @@ function submit(form) {
 	const form_data = new FormData(form);
 	fetch('/addToCart', {method: 'post', body: form_data})
 		.then(response => {
-			if (!response.ok)
-				throw 'Failed to add to cart. Please try again.'
+			if (!response.ok) {
+				throw 'Failed to add to cart.';
+				console.log(response.status);
+				console.log(response);
+			}
 			response.json().then(data => {
 				const submit_btn = form.querySelector('input[type=image]');
 				tippy(submit_btn, 

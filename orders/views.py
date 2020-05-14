@@ -172,15 +172,15 @@ def add_to_cart(request):
 			'message' : f'Please choose exactly {menu_item.n_addons} toppings'}, status=400)
 		
 	#try to retrieve Pending order (for any user there is at most one Pending order at any time)
-	#if it failes create a new order
+	#if it failes create a new pending order
 	try:
 		order = Order.objects.get(customer=request.user, status='Pending')
 	except Order.DoesNotExist:
 		order = Order(customer=request.user)
+		order.save()
 	finally:
 		#create OrderItem and related OrderItemAddons. Commit changes 
 		order_item = OrderItem(menu_item=menu_item, order=order)
-		order.save()
 		order_item.save()
 		for addon in addons:
 			order_addon = OrderItemAddon(menu_item_addon=addon, order_item=order_item)

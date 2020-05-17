@@ -6,7 +6,7 @@
 	<div id="main-container" class="container">
 		{% include "category-nav.html" %}    
 		<div id="category-detail" class="container">
-			<table>
+			<table id="menu-table">
 				<tr>
 				{% for header_cell in header %}
 					<td>{{ header_cell|default_if_none:'' }}</td>
@@ -15,28 +15,52 @@
 				{% for row in rows %}
 					<tr>
 					{% for item in row %}
-					<td>
+					
+						
 						{% if item %}
-							{% if forloop.counter0 == 0%}
-								{{ item }}
+							{% if forloop.counter0 == 0 %}
+								<td class=left-col>{{ item }}</td>
 							{% elif item.allowed_addons.count == 0 %}
+							<td>
 								<form class="add-to-cart-form">
 								{% csrf_token %}
 								{{ item.price }}
 								<input type="hidden" name="item_id" value={{ item.id }}>
-								<input type="image" class="icon add-to-cart-btn" 
-								src="{% static 'orders/icons/square-plus.png' %}" alt="Submit Form" />
+								<input type="submit" 
+									value="&#xf0fe" 
+									class="fa fa-input btn add-to-cart-btn" 
+									alt="Submit Form" 
+								/>
+
+								<!-- <input type="image" class="icon add-to-cart-btn" 
+								src="{% static 'orders/icons/square-plus.png' %}" alt="Submit Form" /> -->
+
+							<!-- 	<button type="submit" class="add-to-cart-btn">
+									<i class="fa fa-plus-square-o" style="color:red"></i>
+								</button> -->
+
 								</form>
-							{% else %}								
+							</td>
+							{% else %}	
+							<td>
 								{{item.price}}
-								<img class="icon add-to-cart-addons-btn" 
+								<button 
+									class="fa fa-input btn add-to-cart-addons-btn"
+									data-item="{{ item.id }}" 
+									data-csrf-token="{{ csrf_token }}"
+								>
+									<i class="fa fa-plus-square"></i>
+								</button>
+
+								<!-- <img class="icon add-to-cart-addons-btn" 
 								data-item="{{ item.id }}" data-csrf-token="{{ csrf_token }}" 
-								src="{% static 'orders/icons/square-plus.png' %}">
+								src="{% static 'orders/icons/square-plus.png' %}"> -->
+							</td>
 							{% endif %}
 						{% else %}
-							-
+							<td>-</td>
 						{% endif %}
-					</td>
+				
 					{% endfor %}
 					<tr>
 				{% endfor %}
@@ -45,7 +69,14 @@
 		</div>
 		<div id="sidebar-right" class="container sidebar">
 			<div id="cart-container">
-				<h2>Cart</h2>
+				<div id="cart-header">
+					Cart
+					<!-- <button 
+						class="fa fa-input btn"
+					>
+						<i class="fa fa-arrow-right"></i>
+					</button> -->
+				</div>
 				<div id="cart-body"></div>
 			</div>
 		</div>

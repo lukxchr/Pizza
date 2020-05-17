@@ -44,8 +44,10 @@ async function renderAddToCart(instance) {
 			fetch('/addToCart', {method: 'post', body: form_data})
 			.then(response => response.json())
 			.then(data => instance.setContent(data.message))
+			renderCart();
 			return false; 
 		}
+
 }
 
 async function renderCart() {
@@ -67,6 +69,8 @@ async function renderCart() {
 	const order_items = order.order_items;
 
 	//render order 
+	document.querySelector('#cart-header').innerHTML = `Cart (\$${total_price})`;
+
 	const cart = cart_template({order: order})
 	const cart_body = document.querySelector('#cart-body');
 	cart_body.innerHTML = cart;
@@ -135,7 +139,7 @@ function submit(form) {
 				console.log(response);
 			}
 			response.json().then(data => {
-				const submit_btn = form.querySelector('input[type=image]');
+				const submit_btn = form.querySelector('input[type=submit]');
 				tippy(submit_btn, 
 					{content: data['message'], 
 					showOnCreate: true, 
@@ -143,6 +147,7 @@ function submit(form) {
 					onHidden(instance) {
 						instance.reference._tippy.destroy();
 					}});
+				renderCart();
 			});
 		})
 		.catch(err => console.log(err));

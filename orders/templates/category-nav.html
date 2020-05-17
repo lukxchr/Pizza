@@ -1,7 +1,13 @@
 <div id="sidebar" class="container">
 	{% for category in categories %}
+	
 	<a href="{% url 'menu' category.id %}">
-		<div class="category-btn">	{{ category.name }} </div>
+		<div class="category-btn">
+			{{ category.name }}
+		</div>
 	</a>
+	
+
 	{% endfor %}
 </div>
+

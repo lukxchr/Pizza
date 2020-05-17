@@ -6,8 +6,19 @@ body {
 }
 
 body {
-	color: white;
+	color: #FAFAFF;
 	font-family: sans-serif;
+}
+
+a:visited, a:link, a:active
+{
+	color: #FAFAFF;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+	font-weight: bolder;
 }
 
 #main-container {
@@ -65,32 +76,68 @@ body {
 }
 
 .category-btn {
-	height: 20%;
-	font-size: 2em;
-	text-align: center;
-	border-radius: 10%;
+	/*border-radius: 10%;*/
 	cursor: pointer;
+	font-size: 2em;
+	height: 20%;
+	display: flex;
+	justify-content: center; /* align horizontal */
+	align-items: center; /* align vertical */
 }
 
 .category-btn:hover {
 	background-color: rgba(0, 0, 0, 0.8);
 }
 
-.icon {
+/*.icon {
 	height: 1em;
+	cursor: pointer;
 }
 
 .icon:hover {
 	background-color: red;
+	background-color: rgba(0, 0, 0, 1);
+}*/
+
+#cart-header {
+	font-size: 2em;
+	font-weight: bold;
 }
 
-table {
-	border: solid;
+
+table#menu-table {
+	border: none;
 	width: 100%;
 	border-collapse: collapse;
+
+	font-size: 1.5em;
 }
 
 td {
-	border: solid;
+	border: none;
+	text-align: center;
+}
+
+td.left-col {
+	text-align: left;
 
 }
+
+
+
+.btn {
+	background-color: Transparent;
+	border: none;
+	color: white;
+	cursor: pointer;
+}
+
+.btn:hover {
+	color: #f28f3b;
+}
+
+
+.tippy-content {
+	text-align: left;
+}
+

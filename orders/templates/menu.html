@@ -2,84 +2,65 @@
 {% load static %}
 
 {% block body %} 
-	
 	<div id="main-container" class="container">
+		<!-- left sidebar. nav with list of categories  -->
 		{% include "category-nav.html" %}    
 		<div id="category-detail" class="container">
 			<table id="menu-table">
+				<!-- table header. Normally empty cell followed by cells with distinct sizes. Or empty if menu items in given category don't have sizes  -->
 				<tr>
 				{% for header_cell in header %}
-					<td>{{ header_cell|default_if_none:'' }}</td>
+					<td class="header-td">{{ header_cell|default_if_none:'' }}</td>
 				{% endfor %}
 				</tr>
+				<!-- the rest of the table: first column contains distinct item names. the remaining cells item prices for given (size, name) or '-' if item not avaialble in given size. Add to cart btn behaves differently for items without addons (add to cart straightaway) and items with addons (show form with addons inside tippy) -->
 				{% for row in rows %}
 					<tr>
-					{% for item in row %}
-					
-						
-						{% if item %}
+					{% for cell in row %}	
+						{% if cell %}
 							{% if forloop.counter0 == 0 %}
-								<td class=left-col>{{ item }}</td>
-							{% elif item.allowed_addons.count == 0 %}
+								<td class=left-col-td>
+									{{ cell }}
+									{% if cell == 'Special' %}
+										<i 
+											class="fa fa-info-circle" 
+											data-tippy-content="Half-and-half or other special wishes. Add to cart and proceed to checkout to add your comments.">
+										</i>
+									{% endif %}
+								</td>
+							{% elif cell.allowed_addons.count == 0 or cell.is_special %}
 							<td>
 								<form class="add-to-cart-form">
 								{% csrf_token %}
-								{{ item.price }}
-								<input type="hidden" name="item_id" value={{ item.id }}>
+								{{ cell.price }}
+								<input type="hidden" name="item_id" value={{ cell.id }}>
 								<input type="submit" 
 									value="&#xf0fe" 
 									class="fa fa-input btn add-to-cart-btn" 
 									alt="Submit Form" 
 								/>
-
-								<!-- <input type="image" class="icon add-to-cart-btn" 
-								src="{% static 'orders/icons/square-plus.png' %}" alt="Submit Form" /> -->
-
-							<!-- 	<button type="submit" class="add-to-cart-btn">
-									<i class="fa fa-plus-square-o" style="color:red"></i>
-								</button> -->
-
 								</form>
 							</td>
 							{% else %}	
 							<td>
-								{{item.price}}
+								{{cell.price}}
 								<button 
 									class="fa fa-input btn add-to-cart-addons-btn"
-									data-item="{{ item.id }}" 
-									data-csrf-token="{{ csrf_token }}"
+									data-item="{{ cell.id }}" 
 								>
 									<i class="fa fa-plus-square"></i>
 								</button>
-
-								<!-- <img class="icon add-to-cart-addons-btn" 
-								data-item="{{ item.id }}" data-csrf-token="{{ csrf_token }}" 
-								src="{% static 'orders/icons/square-plus.png' %}"> -->
 							</td>
 							{% endif %}
 						{% else %}
 							<td>-</td>
 						{% endif %}
-				
 					{% endfor %}
 					<tr>
 				{% endfor %}
-
 			</table>
 		</div>
-		<div id="sidebar-right" class="container sidebar">
-			<div id="cart-container">
-				<div id="cart-header">
-					Cart
-					<!-- <button 
-						class="fa fa-input btn"
-					>
-						<i class="fa fa-arrow-right"></i>
-					</button> -->
-				</div>
-				<div id="cart-body"></div>
-			</div>
-		</div>
+		{% include "cart.html" %}    
 	</div> 
 	<script type="module" src="{% static 'orders/menu.js' %}"></script>
 {% endblock %}

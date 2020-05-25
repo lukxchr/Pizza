@@ -47,35 +47,24 @@ const add_to_cart_form_template = Handlebars.compile(`
 <input type=submit value="Add to Cart">
 </form>`);
 
-// const add_to_cart_form_template = Handlebars.compile(`
-// <form class="add-to-cart-form">
-// <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-// <input type="hidden" name="item_id" value={{ item_id }}>
-// {{#each addons}}
-// 	<label>{{ this.name }}{{ formatAddonPrice this.price }}</label>
-// 	<input type="checkbox" name="addon" value="{{ this.id }}">
-// 	<br>
-// {{/each}}
-// <input type=submit value="Add to Cart">
-// </form>`);
+
 
 const cart_template = Handlebars.compile(`
-	{{#each order.order_items}}
-		{{this.menu_item.size.name}}
-		{{this.menu_item.category.name}}
+	{{#each items}}
+		<b>{{this.size}} {{this.category}}</b>
 		</br>
-		{{this.menu_item.name}}
+		{{this.name}}
 		</br>
-		\${{this.menu_item.price}}
+		\${{this.price}}
 		</br>
 		{{#each this.addons}}
-			+{{this.menu_item_addon.name}}
-			{{ formatAddonPrice this.menu_item_addon.price }}
+			+{{this.name}}
+			{{ formatAddonPrice this.price }}
 			<br/>
 		{{/each}}
 		<br/>
 	{{/each}}
-	<div id="total-price"><h3>Total: \${{ order.total_price }}</h3></div>`);
+	<div id="total-price"><h3>Total: \${{total_price}}</h3></div>`);
 
 //returns empty string if price==0.00 otherwise adds $ symbol in the front
 Handlebars.registerHelper('formatAddonPrice', price => price == 0.00 ? '' : `(+\$${price})`);
@@ -84,31 +73,19 @@ Handlebars.registerHelper('formatAddonPrice', price => price == 0.00 ? '' : `(+\
 
 async function renderCart() {
 	//fetch existing pending order
-	let response = await fetch(`/api/orders/?status=Pending&customer=1`)
+	let response = await fetch('/getCart')
 	if (!response.ok)
 		throw 'Failed to fetch pending order.';
-	const orders = await response.json();
-	if (orders.length == 0)
+	const cart_data = await response.json();
+	if (cart_data.items.length == 0)
 		return; //nothing to render
 
-	//fetch order details
-	const order_id = orders[0].id;
-	response = await fetch(`/api/orders/${order_id}`);
-	if (!response.ok)
-		throw 'Failed to fetch order details.';
-	const order = await response.json();
-	const total_price = order.total_price;
-	//const order_items = order.order_items;
-
-	//render order 
-	//header
-	document.querySelector('#cart-header').innerHTML = `Cart (\$${total_price.toFixed(2)})`;
-	//body
-	const cart = cart_template({order: order})
+	const cart = cart_template({
+		items: cart_data.items, total_price: cart_data.total_price});
 	const cart_body = document.querySelector('#cart-body');
 	cart_body.innerHTML = cart;
 	//enable checkout button if at least one item added to cart
-	if (order.order_items.length > 0)
+	if (cart_data.items.length > 0)
 		document.querySelector('#checkout-btn').disabled = false;
 }
 

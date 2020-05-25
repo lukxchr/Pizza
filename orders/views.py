@@ -11,7 +11,7 @@ from django.views.generic import CreateView, DetailView, View
 from .models import Category, Size, MenuItem, MenuItemAddon, User, Address, Order, OrderItem, OrderItemAddon
 from .models import PAYMENT_METHOD_CHOICES
 
-from .forms import CreateAddressForm, SignUpForm
+from .forms import CreateAddressForm, PlaceOrderForm, SignUpForm
 from django.contrib.auth.forms import AuthenticationForm
 
 from collections import OrderedDict
@@ -19,7 +19,7 @@ import datetime
 
 
 
-@login_required
+# @login_required
 def index(request):
 	first_category = Category.objects.first()
 	return HttpResponseRedirect(
@@ -33,7 +33,11 @@ def login_view(request):
 		password = request.POST['password']
 		user = authenticate(request, username=username, password=password)
 		if user:
+			#copy pending order to new session 
+			#(keep cart items that user added before logging in)
+			pending_order = request.session.get('pending_order')
 			login(request, user)
+			request.session['pending_order'] = pending_order
 			return HttpResponseRedirect(reverse("index"))
 		else:
 			return render(request, 'login.html', {'message': 'Invalid credentials.'})
@@ -70,11 +74,13 @@ class PlaceOrderView(View):
 			order = Order(customer=request.user)
 			order.save()
 		addresses = Address.objects.filter(user=request.user)
+		form = PlaceOrderForm()
 		context = {
 			'order': order,
 			'order_items' : order.order_items.all(),
 			'addresses' : addresses,
-			'payment_methods': PAYMENT_METHOD_CHOICES,
+			'payment_methods' : PAYMENT_METHOD_CHOICES,
+			'form' : form,
 			}
 		return render(request, 'order_update.html', context)
 
@@ -126,7 +132,6 @@ def logout_view(request):
       return render(request, 'login.html', {'message': 'Logged out.'})
 	
 
-@login_required
 def menu(request, category_id):
 	category = Category.objects.filter(id=category_id).first()
 	if not category:
@@ -147,8 +152,7 @@ def menu(request, category_id):
 			row.append(item if item else None)
 		rows.append(row)
 
-	context = {'header' : header, 'rows': rows, 
-	'categories' : Category.objects.all()}
+	context = {'header' : header, 'rows': rows, 'categories' : Category.objects.all()}
 	return render(request, 'menu.html', context=context)
 
 
@@ -167,30 +171,74 @@ def add_to_cart(request):
 	except MenuItemAddon.DoesNotExist:
 		raise Http404('MenuItemAddon does not exist')
 
+	#validate n addons 
 	if len([addon for addon in addons if addon.price == 0]) != menu_item.n_addons:
 		return JsonResponse({
 			'message' : f'Please choose exactly {menu_item.n_addons} toppings'}, status=400)
-		
-	#try to retrieve Pending order (for any user there is at most one Pending order at any time)
-	#if it failes create a new pending order
-	try:
-		order = Order.objects.get(customer=request.user, status='Pending')
-	except Order.DoesNotExist:
-		order = Order(customer=request.user)
-		order.save()
-	finally:
-		#create OrderItem and related OrderItemAddons. Commit changes 
-		order_item = OrderItem(menu_item=menu_item, order=order)
-		order_item.save()
-		for addon in addons:
-			order_addon = OrderItemAddon(menu_item_addon=addon, order_item=order_item)
-			order_addon.save()
-		
+
+	#validate if addons allowed for menu item
+	for id_ in addon_ids:
+		if not menu_item.allowed_addons.filter(pk=id_).exists():
+			return JsonResponse({
+				'message' : 'Please choose valid addons'}, status=400) 
+	
+	#store items/addons inside session 
+	if not request.session.get('pending_order'):
+		request.session['pending_order'] = [{'id': 1, 'item_id' : item_id, 'addon_ids' : addon_ids}]
+	else:
+		pending_order = request.session['pending_order']
+		next_id = pending_order[-1]['id'] + 1
+		pending_order.append({'id': next_id, 'item_id' : item_id, 'addon_ids' : addon_ids})
+		request.session['pending_order'] = pending_order
+
+
 	return JsonResponse({'message' : 'Item added to cart.'})
 
+
+
+	#try to retrieve Pending order (for any user there is at most one Pending order at any time)
+	#if it failes create a new pending order
+	# try:
+	# 	order = Order.objects.get(customer=request.user, status='Pending')
+	# except Order.DoesNotExist:
+	# 	order = Order(customer=request.user)
+	# 	order.save()
+	# finally:
+	# 	#create OrderItem and related OrderItemAddons. Commit changes 
+	# 	order_item = OrderItem(menu_item=menu_item, order=order)
+	# 	order_item.save()
+	# 	for addon in addons:
+	# 		order_addon = OrderItemAddon(menu_item_addon=addon, order_item=order_item)
+	# 		order_addon.save()
+		
+	# return JsonResponse({'message' : 'Item added to cart.'})
+
 	
+def cart(request):
+	return JsonResponse(serialize_cart(request.session.get('pending_order')), safe=False)
 	
-	
-	
+#given cart representation stored inside session [(item_id, [addon_id])]
+#returns JSON serializable object: {total_price:, items:
+#[{name:, category:, size:, price:, addons: [{name:, price:}]}]}
+def serialize_cart(pending_order):
+	serialized = {'items' : []}
+	total_price = 0
+	for item in pending_order:
+		menu_item = MenuItem.objects.get(pk=item['item_id'])
+		addons = [MenuItemAddon.objects.get(pk=id_) for id_ in item['addon_ids']]
+		total_price += menu_item.price + sum(addon.price for addon in addons)
+		serialized_item =  {
+			'id' : item['id'],
+			'name' : menu_item.name,
+			'category' : menu_item.category.name,
+			'size' : menu_item.size.name,
+			'price' : menu_item.price,
+			'addons' : [{'name': addon.name, 'price': addon.price} for addon in addons],
+		}	
+		serialized['items'].append(serialized_item)
+	serialized['total_price'] = total_price
+	return serialized
+
+
 
 	

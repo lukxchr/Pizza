@@ -3,18 +3,30 @@
 
 {% block body %} 
 <div id="main-container" class="container">
-	<table>
+	<table id="order-items-table">
 		<tr>
 			<td>#</td>
 			<td>Item</td>
-			<td>Base Price</td>
-			<td>Total Price</td>
+			<td>
+				Base Price
+				<i 
+					class="fa fa-info-circle" 
+					data-tippy-content="Price without addons.">
+				</i>
+			</td>
+			<td>
+			Total Price
+			<i 
+				class="fa fa-info-circle" 
+				data-tippy-content="Price with addons.">
+			</i>
+			</td>
 			<td></td>
 		</tr>
 		{% for item in order_items %}
 		<tr data-item="{{ item.id }}">
-			<td>{{ forloop.counter }}</td>
-			<td>
+			<td class="row-n">{{ forloop.counter }}</td>
+			<td class="item-name-col-td">
 				{{ item.menu_item.size|default_if_none:"" }}
 				{{ item.menu_item.category }}
 				{{ item.menu_item.name }}
@@ -29,27 +41,27 @@
 				</p>
 			</td>
 			<td>
-				<img class="icon rm-from-cart-btn" 
+			<!-- 	<img class="icon rm-from-cart-btn" 
 					data-item="{{ item.id }}" 
 					data-csrf-token="{{ csrf_token }}" 
 					src="{% static 'orders/icons/trash.png' %}"
-				>
+				> -->
+				<i class="fa fa-trash-o rm-from-cart-btn"
+					data-item="{{ item.id }}"></i>
 			</td>
 		</tr>
 
 		{% if item.addons.all %}
 		<tr data-item="{{ item.id }}">
 			<td></td>
-			<td>
+			<td class="item-name-col-td" colspan="4">
 				<ul>
 				{% for addon in item.addons.all %}
 				<li>
 					{{ addon.menu_item_addon.name }}
 					(+${{ addon.menu_item_addon.price }})
-
 				</li>
 				{% endfor %}
-				
 				</ul>
 			</td>
 		</tr>
@@ -58,7 +70,7 @@
 
 	</table>
 
-	<h3 id="total-order-price">Total: <h3>
+	<h2 id="total-order-price"><h2>
 
 	<form method="post" action={% url "place_order" %}>
 		{% csrf_token %}
@@ -85,6 +97,9 @@
 		<textarea name="order-comments"></textarea>
 		<br><br>
 		<input type="submit" value="Place Order">
+	</form>
+	<form>
+		{{ form.as_p }}
 	</form>
 </div>
 <script type="module" src="{% static 'orders/order_update.js' %}"></script>

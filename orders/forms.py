@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from orders.models import Address
+from orders.models import Address, Order
 
 class SignUpForm(UserCreationForm):
 	email = forms.EmailField(required=True, label='Email')
@@ -15,13 +15,19 @@ class CreateAddressForm(forms.ModelForm):
 	class Meta:
 		model = Address
 		fields = ['id', 'name', 'address1', 'address2', 'zip_code', 'city', 'user']
-		widgets={'user': forms.HiddenInput()}
+		widgets= {'user': forms.HiddenInput()}
 
 
 	# def clean(self):
 	# 	data = self.cleaned_data
 	# 	data['User'] = self.
 
+
+class PlaceOrderForm(forms.ModelForm):
+	class Meta:
+		model = Order
+		fields = ['id', 'notes', 'payment_method', 'delivery_address']
+		widgets = {}
 
 # class MenuItemOrderForm(forms.Form):
 # 	pass

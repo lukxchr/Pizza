@@ -1,31 +1,39 @@
 document.addEventListener('DOMContentLoaded', () => {
+	//init tippy tooltips
+	tippy('[data-tippy-content]', {
+		placement: 'right',
+	});
+
 	document.addEventListener('click', (e) => {
 		if (e.target.matches('.rm-from-cart-btn')) {
-			console.log('removing');
 			const dataset = e.target.dataset;
-			deleteOrderItem(dataset.item, dataset.csrf_token);
+			deleteOrderItem(dataset.item);
 		}
-	})
-
-	calculateTotalOrderPrice()
-		
+	});
+	recalculateCart();
 });
 
-
-function calculateTotalOrderPrice() {
+//calculate total price and row numbers and update DOM
+//called when page loads or item deleted
+function recalculateCart() {
+	//update total price
 	let total = 0;
 	document.querySelectorAll('.item-total-price')
-	.forEach(price_elem => total += parseFloat(price_elem.dataset.price) )
+	.forEach(price_elem => total += parseFloat(price_elem.dataset.price) );
 	document.querySelector("#total-order-price").innerHTML = `
-		Total: ${total.toFixed(2)}`;
+		Total: \$${total.toFixed(2)}`;
+
+	//update row nums (changes when item item delated from the middle)
+	let counter = 1;
+	document.querySelectorAll('.row-n').forEach(row_n => {
+		row_n.innerHTML = counter;
+		counter += 1;
+	});
 	
 }
 
-function deleteOrderItem(id, csrf_token) {
+function deleteOrderItem(id) {
 	const form_data = new FormData();
-    form_data.append('csrfmiddlewaretoken', Cookies.get('csrftoken'));
-
-
 	fetch(`/api/order_items/${id}`, {
 		method: 'delete',
 		headers: {
@@ -37,7 +45,6 @@ function deleteOrderItem(id, csrf_token) {
 		//remove tr(s) from DOM (2 rows if item with addons)
 		document.querySelectorAll(`tr[data-item="${id}"]`)
 		.forEach(element => element.remove() );
-		//recalculate order total
-		calculateTotalOrderPrice();
+		recalculateCart();
 	});
 }

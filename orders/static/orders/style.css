@@ -3,12 +3,12 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: 100% 100%;
+  color: #FAFAFF;
+  font-family: sans-serif;
+  cursor: default;
 }
 
-body {
-	color: #FAFAFF;
-	font-family: sans-serif;
-}
+
 
 a:visited, a:link, a:active
 {
@@ -108,7 +108,7 @@ a:hover {
 	margin-top: 10px;
 	margin-bottom: 10px;
     font-size: 1.2rem;
-    font-style: italic;
+    /*font-style: italic;*/
     line-height: 1.1;
 }
 
@@ -116,7 +116,7 @@ a:hover {
 table#menu-table {
 	border: none;
 	width: 100%;
-	border-collapse: collapse;
+	/*border-collapse: collapse;*/
 
 	font-size: 1.5em;
 }
@@ -131,6 +131,23 @@ td.left-col-td {
 
 }
 
+table#order-items-table {
+	border: solid;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+table#order-items-table td {
+	border: solid;
+	font-size: 1.5rem;
+	background-color: rgba(0, 0, 0, 0.6);
+	
+}
+
+td.item-name-col-td {
+	text-align: left;
+}
+
 
 .btn {
 	background-color: Transparent;
@@ -139,8 +156,9 @@ td.left-col-td {
 	cursor: pointer;
 }
 
-.btn:hover {
+.fa:hover {
 	color: #f28f3b;
+	cursor: pointer;
 }
 
 button {
@@ -155,3 +173,7 @@ button:disabled {
 	text-align: left;
 }
 
+
+a:hover {
+	text-decoration: underline;
+}

@@ -11,7 +11,7 @@ from django.views.generic import CreateView, DetailView, View
 from .models import Category, Size, MenuItem, MenuItemAddon, User, Address, Order, OrderItem, OrderItemAddon
 from .models import PAYMENT_METHOD_CHOICES
 
-from .forms import CreateAddressForm, PlaceOrderForm, SignUpForm
+from .forms import CreateAddressForm, CreateOrderForm, SignUpForm
 from django.contrib.auth.forms import AuthenticationForm
 
 from collections import OrderedDict
@@ -68,45 +68,30 @@ class AddressCreateView(CreateView):
 
 class PlaceOrderView(View):
 	def get(self, request):
-		try:
-			order = Order.objects.get(customer=request.user, status='Pending')
-		except Order.DoesNotExist:
-			order = Order(customer=request.user)
-			order.save()
-		addresses = Address.objects.filter(user=request.user)
-		form = PlaceOrderForm()
-		context = {
-			'order': order,
-			'order_items' : order.order_items.all(),
-			'addresses' : addresses,
-			'payment_methods' : PAYMENT_METHOD_CHOICES,
-			'form' : form,
-			}
-		return render(request, 'order_update.html', context)
+		context = {'form' : CreateOrderForm(user=self.request.user)}
+		return render(request, 'place_order.html', context)
 
 	def post(self, request):
-		try: 
-			order = Order.objects.get(pk=request.POST['order'])
-			address = Address.objects.get(pk=request.POST['address'])
-			payment_method = request.POST['payment-method']
-			notes = request.POST['order-comments']
-		except Order.DoesNotExist:
-			raise Http404('Order does not exisit.')
-		except Address.DoesNotExist:
-			raise Http404('Address does not exisit')
-		#TO DO: validate order notes lenght 
+		form = CreateOrderForm(request.POST, user=self.request.user)
+		if form.is_valid():
+			order = form.save(commit=False)
+			order.customer = request.user
+			order.delivery_estimate = datetime.datetime.now() + datetime.timedelta(minutes=40)
+			order.save()
+			save_cart(request.session.get('pending_order'), order)
+			request.session['pending_order'] = [] #clear cart
+			return HttpResponseRedirect(reverse('track_order', kwargs={'pk' : order.pk}))
+		context = {'form' : CreateOrderForm(user=self.request.user)}
+		return render(request, 'place_order.html', context)
 
-	
-		order.delivery_address = address
-		order.payment_method = payment_method
-		order.notes = notes
-		order.delivery_estimate = datetime.datetime.now() + datetime.timedelta(minutes=30)
-		order.status = 'Placed'
-		order.save()
+	# def get_form_kwargs(self):
+	# 	kwargs = super(PlaceOrderView, self).get_form_kwargs()
+	# 	kwargs.update({'user': self.request.user})
+	# 	return kwargs
 
 
 
-		return HttpResponseRedirect(reverse('track_order', kwargs={'pk' : order.pk}))
+		
 
 
 
@@ -196,30 +181,18 @@ def add_to_cart(request):
 
 
 
-	#try to retrieve Pending order (for any user there is at most one Pending order at any time)
-	#if it failes create a new pending order
-	# try:
-	# 	order = Order.objects.get(customer=request.user, status='Pending')
-	# except Order.DoesNotExist:
-	# 	order = Order(customer=request.user)
-	# 	order.save()
-	# finally:
-	# 	#create OrderItem and related OrderItemAddons. Commit changes 
-	# 	order_item = OrderItem(menu_item=menu_item, order=order)
-	# 	order_item.save()
-	# 	for addon in addons:
-	# 		order_addon = OrderItemAddon(menu_item_addon=addon, order_item=order_item)
-	# 		order_addon.save()
-		
-	# return JsonResponse({'message' : 'Item added to cart.'})
-
+def remove_from_cart(request):
+	if request.method != 'POST':
+		raise Http404('Method not allowed')
+	item_id = int(request.POST.get('item_id'))
+	pending_order = [item for item in request.session['pending_order'] if item['id'] != item_id]
+	request.session['pending_order'] = pending_order
+	return JsonResponse({'message' : 'Item removed from cart.'})
 	
 def cart(request):
 	return JsonResponse(serialize_cart(request.session.get('pending_order')), safe=False)
 	
-#given cart representation stored inside session [(item_id, [addon_id])]
-#returns JSON serializable object: {total_price:, items:
-#[{name:, category:, size:, price:, addons: [{name:, price:}]}]}
+#given cart representation stored inside session returns JSON serializable object 
 def serialize_cart(pending_order):
 	serialized = {'items' : []}
 	total_price = 0
@@ -231,13 +204,27 @@ def serialize_cart(pending_order):
 			'id' : item['id'],
 			'name' : menu_item.name,
 			'category' : menu_item.category.name,
-			'size' : menu_item.size.name,
-			'price' : menu_item.price,
+			'size' : menu_item.size.name if menu_item.size else None,
+			'base_price' : menu_item.price,
+			'total_price' : menu_item.price + sum(addon.price for addon in addons),
 			'addons' : [{'name': addon.name, 'price': addon.price} for addon in addons],
 		}	
 		serialized['items'].append(serialized_item)
 	serialized['total_price'] = total_price
 	return serialized
+
+#adds all items from cart(pending_order stored in session)
+#to db and links them with order instance
+def save_cart(pending_order, order):
+	for item in pending_order:
+		menu_item = MenuItem.objects.get(pk=item['item_id'])
+		order_item = OrderItem(menu_item=menu_item, order=order)
+		order_item.save()
+		for addon_id in item['addon_ids']:
+			menu_item_addon = MenuItemAddon.objects.get(pk=addon_id)
+			order_item_addon = OrderItemAddon(
+				menu_item_addon=menu_item_addon, order_item=order_item)
+			order_item_addon.save()
 
 
 

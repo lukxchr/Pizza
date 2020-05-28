@@ -14,63 +14,31 @@ class SignUpForm(UserCreationForm):
 class CreateAddressForm(forms.ModelForm):
 	class Meta:
 		model = Address
-		fields = ['id', 'name', 'address1', 'address2', 'zip_code', 'city', 'user']
+		fields = '__all__'
+		#fields = ['id', 'name', 'address1', 'address2', 'zip_code', 'city', 'user']
 		widgets= {'user': forms.HiddenInput()}
 
 
-	# def clean(self):
-	# 	data = self.cleaned_data
-	# 	data['User'] = self.
 
+class CreateOrderForm(forms.ModelForm):
+	def __init__(self, *args, **kwargs):
+		user = kwargs.pop('user')  
+		super(CreateOrderForm, self).__init__(*args, **kwargs)
+		self.fields['delivery_address'].queryset = Address.objects.filter(user=user)
+        # If the user does not belong to a certain group, remove the field
+        # if not self.user.groups.filter(name__iexact='mygroup').exists():
+        #     del self.fields['confidential']
 
-class PlaceOrderForm(forms.ModelForm):
 	class Meta:
 		model = Order
-		fields = ['id', 'notes', 'payment_method', 'delivery_address']
-		widgets = {}
+		fields = ['delivery_address', 'payment_method', 'notes']
+		#notes = forms.CharField(widget=forms.)
+		widgets = {'notes' : forms.Textarea(
+			attrs={'cols': 60, 'rows': 3, 'style': 'font-size: 1.5rem;',}),
+			'payment_method' : forms.Select(choices=Address.objects.all()),
+		}
+		labels = {
+			'delivery_address' : 'Choose delivery address',
+			'payment_method' : 'Choose payment method',
+		}
 
-# class MenuItemOrderForm(forms.Form):
-# 	pass
-
-# class PizzaOrderForm(forms.Form):
-	
-# 	def __init__(self, pizzas, toppings, *args, **kwargs):
-# 		super(PizzaOrderForm, self).__init__(*args, **kwargs)
-
-# 		toppings_choices = [(topping.id, topping.name) for topping in toppings]
-		
-# 		pizza_choices = []
-# 		for pizza in pizzas:
-# 			if pizza.is_special:
-# 				choice_name = f'{pizza.size} – Unlimited toppings – ${pizza.price}'
-# 			elif pizza.n_addons == 0:
-# 				choice_name = f'{pizza.size} – Cheese – ${pizza.price}'
-# 			elif pizza.n_addons == 1:
-# 				choice_name = f'{pizza.size} – 1 topping – ${pizza.price}'
-# 			else:
-# 				choice_name = f'{pizza.size} – {pizza.n_addons} toppings – ${pizza.price}'
-# 			pizza_choices.append((pizza.id, choice_name))
-
-# 		self.fields['pizza'] = forms.ChoiceField(
-# 			choices=pizza_choices, widget=forms.RadioSelect, 
-# 			label='Choose size')
-# 		# self.fields['pizza'] = forms.ChoiceField(
-# 		# 	choices=pizza_choices, label='Choose size')
-# 		self.fields['toppings'] = forms.MultipleChoiceField(
-# 			widget=forms.CheckboxSelectMultiple, 
-# 			choices = toppings_choices, 
-# 			label='Add toppings')
-
-		
-
-	# def clean_toppings(self):
-	# 	print('clean_toppings')
-	# 	chosen_toppings = self.cleaned_data['toppings']
-	# 	if len(toppings) != self.pizza.n_toppings:
-	# 		raise forms.ValidationError(
-	# 			f'Please choose exactly {self.pizza.n_toppings} or choose different pizza')
-	# 	return self.cleaned_data
-
-	# 
-
-	

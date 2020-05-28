@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %} 
+<div id="main-container" class="container">
+	<div id="cart-items-container">
+	<table id="order-items-table">
+		<tr id="table-header">
+			<td>#</td>
+			<td>Item</td>
+			<td>
+				Base Price
+				<i 
+					class="fa fa-info-circle" 
+					data-tippy-content="Price without addons.">
+				</i>
+			</td>
+			<td>
+			Total Price
+			<i 
+				class="fa fa-info-circle" 
+				data-tippy-content="Price with addons.">
+			</i>
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td colspan="4">Your cart is empty</td>
+		</tr>
+
+	</table>
+	</div>
+	<h2 id="total-order-price"><h2>
+
+	<form method="post" action={% url "place_order" %}>
+		{% csrf_token %}
+		<ol>
+		<div class="fieldWrapper">
+	        {{ form.delivery_address.errors }}
+	        <li>{{ form.delivery_address.label_tag }}</li> 
+	        {{ form.delivery_address }}
+	        <a href="{% url 'create_address' %}">
+	        	<i class="fa fa-plus-square" id="add-address-btn" title="Add new address"></i>
+	        </a>
+	        {% if form.delivery_address.help_text %}
+	        	<p class="help">{{ form.delivery_address.help_text|safe }}</p>
+	        {% endif %}
+   		</div>
+   		<br>
+   		<div class="fieldWrapper">
+	        {{ form.payment_method.errors }}
+	        <li>{{ form.payment_method.label_tag }}</li> 
+	        {{ form.payment_method }}
+	        {% if form.payment_method.help_text %}
+	        	<p class="help">{{ form.payment_method.help_text|safe }}</p>
+	        {% endif %}
+   		</div>
+   		<br>
+   		<div class="fieldWrapper">
+	        {{ form.notes.errors }}
+	        <li>
+		        Add order comments <i class="fa fa-info-circle" 
+		        data-tippy-content="Add your wishes for selected special items, delivery details etc."></i>:
+		        <br>
+		        {{ form.notes }}
+	    	</li>
+	        {% if form.notes.help_text %}
+	        	<p class="help">{{ form.notes.help_text|safe }}</p>
+	        {% endif %}
+   		</div>
+   		</ol>
+		<input type="submit" value="Place Order">
+	</form>
+</div>
+<script type="module" src="{% static 'orders/place_order.js' %}"></script>
+{% endblock %}

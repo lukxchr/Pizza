@@ -89,15 +89,7 @@ a:hover {
 	background-color: rgba(0, 0, 0, 0.8);
 }
 
-/*.icon {
-	height: 1em;
-	cursor: pointer;
-}
 
-.icon:hover {
-	background-color: red;
-	background-color: rgba(0, 0, 0, 1);
-}*/
 
 #cart-header {
 	font-size: 2rem;
@@ -176,4 +168,10 @@ button:disabled {
 
 a:hover {
 	text-decoration: underline;
+}
+
+
+/*place_order*/
+#add-address-btn {
+	font-size: 1rem;
 }

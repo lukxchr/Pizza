@@ -14,6 +14,7 @@ urlpatterns = [
   	path('orders/place_order', views.PlaceOrderView.as_view(), name='place_order'),
   	path('orders/<int:pk>', views.track_order, name='track_order'),
   	path('getCart', views.cart, name='get_cart'),
+  	path('removeCartItem', views.remove_from_cart, name='remove_from_cart'),
 ]
 
 

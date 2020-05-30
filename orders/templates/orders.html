@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block body %} 
+<div id="main-container" class="container">
+	<table id="orders-table">
+		<tr>
+			<td>#</td>
+			<td>Date</td>
+			<td>Total</td>
+			<td>Status</td>
+			<td>Details</td>
+		</tr>
+		{% for order in object_list %}
+		<tr>
+			<td>{{ forloop.counter }}</td>
+			<td>{{ order.creation_datetime }}</td>
+			<td>${{ order.total_price }}</td>
+			<td>{{ order.get_status_display }}</td>
+			<td><a href="{% url "track_order" pk=order.pk %}">Details</a></td>
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+{% endblock %}

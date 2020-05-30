@@ -6,15 +6,19 @@
 
 	<h3>Thanks for your order!</h3>
 	<div id="order-info">
-		Order status: <span id="order-status" data-order="{{ order.id }}">{{ order.status }}</span>
+		Order status: <span id="order-status" data-order="{{ order.id }}">{{ order.get_status_display }}</span>
 		<br>
 		Estimated delivery: <span id="delivery-estimate"> ? </span>
 	</div>
 
 	<hr>
 
-	<h3>Delivery and payment details:</h3><br>
-	{{ order.delivery_address }}
+	<h3>Delivery and payment details:</h3>
+	{{ order.delivery_address.name }}<br>
+	{{ order.delivery_address.address1 }}<br>
+	{{ order.delivery_address.address2 }}<br>
+	{{ order.delivery_address.zip_code }}<br>
+	{{ order.delivery_address.city }}<br>
 	<br>
 
 	Payment method: {{ order.payment_method }}

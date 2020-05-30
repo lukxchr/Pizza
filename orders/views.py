@@ -5,7 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, DetailView, View
+from django.views.generic import CreateView, DetailView, ListView, View
 
 
 from .models import Category, Size, MenuItem, MenuItemAddon, User, Address, Order, OrderItem, OrderItemAddon
@@ -92,7 +92,9 @@ class PlaceOrderView(View):
 
 
 		
-
+class OrderListView(ListView):
+	model = Order
+	template_name = 'orders.html'
 
 
 

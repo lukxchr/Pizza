@@ -110,7 +110,7 @@ table#menu-table {
 	width: 100%;
 	/*border-collapse: collapse;*/
 
-	font-size: 1.5em;
+	font-size: 1.2em;
 }
 
 td {
@@ -123,15 +123,15 @@ td.left-col-td {
 
 }
 
-table#order-items-table {
+#order-items-table, #orders-table {
 	border: solid;
 	border-collapse: collapse;
 	width: 100%;
 }
 
-table#order-items-table td {
+#order-items-table td, #orders-table td {
 	border: solid;
-	font-size: 1.5rem;
+	font-size: 1.2rem;
 	background-color: rgba(0, 0, 0, 0.6);
 	
 }

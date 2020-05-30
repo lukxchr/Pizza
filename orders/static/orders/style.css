@@ -24,9 +24,9 @@ a:hover {
 #main-container {
 	position: absolute;
 	top: 7.5%;
-	left: 7.5%;
+	left: 5%;
 	height: 85vh;
-	width: 85%;
+	width: 90%;
 	background-color: rgba(0, 0, 0, 0.3);
 	/*opacity: 0.3;	*/
 }
@@ -46,7 +46,14 @@ a:hover {
 	width: 20%;
 	height: 50%;
 	background-color: rgba(0, 0, 0, 0.6);
+	font-size: 1.5rem;
 }
+
+/*#sidebar li {
+	list-style-type: none;
+}*/
+
+
 
 #sidebar-right {
 	position: absolute;
@@ -75,19 +82,6 @@ a:hover {
 	background-color: rgba(0, 0, 0, 0.6);
 }
 
-.category-btn {
-	/*border-radius: 10%;*/
-	cursor: pointer;
-	font-size: 2em;
-	height: 20%;
-	display: flex;
-	justify-content: center; /* align horizontal */
-	align-items: center; /* align vertical */
-}
-
-.category-btn:hover {
-	background-color: rgba(0, 0, 0, 0.8);
-}
 
 
 

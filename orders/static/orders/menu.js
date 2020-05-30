@@ -69,11 +69,8 @@ const cart_template = Handlebars.compile(`
 //returns empty string if price==0.00 otherwise adds $ symbol in the front
 Handlebars.registerHelper('formatAddonPrice', price => price == 0.00 ? '' : `(+\$${price})`);
 
-function test() {
-	console.log("test");
-}
-
 async function renderCart() {
+	console.log('renderCart called');
 	//fetch existing pending order
 	let response = await fetch('/getCart');
 	if (!response.ok)
@@ -111,10 +108,10 @@ async function renderAddToCart(instance) {
 			const headers = {'X-CSRFToken' : Cookies.get('csrftoken'),};
 			fetch('/addToCart', {method: 'post', body: form_data, headers: headers})
 			.then(response => response.json())
-			.then(data => instance.setContent(data.message));
-			test();
-			renderCart();
-			test();
+			.then(data => {
+				instance.setContent(data.message);
+				renderCart();
+			});
 			return false; 
 		}
 }

@@ -213,6 +213,7 @@ def serialize_cart(pending_order):
 		}	
 		serialized['items'].append(serialized_item)
 	serialized['total_price'] = total_price
+	print(serialized)
 	return serialized
 
 #adds all items from cart(pending_order stored in session)

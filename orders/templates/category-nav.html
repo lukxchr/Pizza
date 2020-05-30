@@ -1,5 +1,20 @@
 <div id="sidebar" class="container">
 	{% for category in categories %}
+	<ul>
+		<li>
+			<a href="{% url 'menu' category.id %}">
+			{{ category.name }}
+			</a>
+		</li>
+	</ul>
+
+	{% endfor %}
+</div>
+
+
+
+<!-- <div id="sidebar" class="container">
+	{% for category in categories %}
 	
 	<a href="{% url 'menu' category.id %}">
 		<div class="category-btn">
@@ -11,3 +26,4 @@
 	{% endfor %}
 </div>
 
+ -->

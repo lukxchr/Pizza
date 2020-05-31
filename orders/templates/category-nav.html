@@ -2,7 +2,7 @@
 	{% for category in categories %}
 	<ul>
 		<li>
-			<a href="{% url 'menu' category.id %}">
+			<a href="{% url 'menu' category.slug %}">
 			{{ category.name }}
 			</a>
 		</li>

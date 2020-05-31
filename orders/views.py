@@ -21,9 +21,8 @@ import datetime
 
 # @login_required
 def index(request):
-	first_category = Category.objects.first()
 	return HttpResponseRedirect(
-		reverse('menu', kwargs={'category_id' : first_category.id}))
+		reverse('menu', kwargs={'slug' : Category.objects.first().slug}))
  
 
 
@@ -119,8 +118,8 @@ def logout_view(request):
       return render(request, 'login.html', {'message': 'Logged out.'})
 	
 
-def menu(request, category_id):
-	category = Category.objects.filter(id=category_id).first()
+def menu(request, slug):
+	category = Category.objects.filter(slug=slug).first()
 	if not category:
 		raise Http404("Category does not exist")
 

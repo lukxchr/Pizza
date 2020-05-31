@@ -46,12 +46,18 @@ a:hover {
 	width: 20%;
 	height: 50%;
 	background-color: rgba(0, 0, 0, 0.6);
-	font-size: 1.5rem;
+	font-size: 2rem;
+	text-align: center;
 }
 
-/*#sidebar li {
+#sidebar li {
 	list-style-type: none;
-}*/
+}
+
+#sidebar ul {
+ padding: 0;
+ margin: 5px;
+}
 
 
 

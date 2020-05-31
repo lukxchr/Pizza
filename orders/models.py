@@ -11,6 +11,7 @@ class Category(models.Model):
 	name = models.CharField(max_length=64)
 	is_pizza_category = models.BooleanField(default=False)
 	sort_order = models.IntegerField()
+	slug = models.SlugField(unique=True)
 
 	class Meta:
 		verbose_name_plural = 'Categories'

@@ -6,9 +6,11 @@
 
 	<h3>Thanks for your order!</h3>
 	<div id="order-info">
-		Order status: <span id="order-status" data-order="{{ order.id }}">{{ order.get_status_display }}</span>
-		<br>
+		
+	
+		Order status: <span id="order-status" data-order="{{ order.id }}">{{ order.get_status_display }}</span><br>
 		Estimated delivery: <span id="delivery-estimate"> ? </span>
+
 	</div>
 
 	<hr>
@@ -21,7 +23,14 @@
 	{{ order.delivery_address.city }}<br>
 	<br>
 
-	Payment method: {{ order.payment_method }}
+	Payment method: {{ order.get_payment_method_display }}
+	<br>
+	Payment status: 
+	<span id="payment-status" data-order="{{ order.id }}">
+	{% if order.is_paid %} Paid {% else %} Pending {% endif %}
+	</span>
+	<a href="{% url 'order_payment' pk=order.pk %}">Payment page</a>
+	
 	<br>
 	Order total: ${{ order.total_price }}
 	<script type="module" src="{% static 'orders/order_track.js' %}"></script>

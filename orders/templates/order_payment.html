@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %} 
+	<div id="main-container" class="container">
+		Payment status: {{ order.is_paid }}
+		{% for payment in order.payments.all %}
+			{{ payment }}<br>
+		{% endfor %}
+		<button id="stripe-btn">Pay with Stripe</button>
+	</div>
+	<script src="https://js.stripe.com/v3/"></script>
+	<script type="text/javascript">
+		const stripe = Stripe('{{ STRIPE_PUBLISHABLE_KEY }}');
+		document.addEventListener('DOMContentLoaded', () => {
+			document.querySelector('#stripe-btn').onclick = () => {
+				stripe.redirectToCheckout({
+				  sessionId: '{{CHECKOUT_SESSION_ID}}'
+				}).then(function (result) {
+				  alert(result.error.message);
+				});
+			}
+		});
+	</script>
+{% endblock %}

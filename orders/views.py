@@ -1,23 +1,31 @@
+from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedirect, Http404, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView, View
 
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
-from .models import Category, Size, MenuItem, MenuItemAddon, User, Address, Order, OrderItem, OrderItemAddon
+from .models import Category, Size, MenuItem, MenuItemAddon, User, Address, Order, OrderItem, OrderItemAddon, Payment
 from .models import PAYMENT_METHOD_CHOICES
 
 from .forms import CreateAddressForm, CreateOrderForm, SignUpForm
 from django.contrib.auth.forms import AuthenticationForm
 
+from .utils import save_cart, serialize_cart
+
 from collections import OrderedDict
 import datetime
 
 
+import stripe 
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 # @login_required
 def index(request):
@@ -79,7 +87,8 @@ class PlaceOrderView(View):
 			order.save()
 			save_cart(request.session.get('pending_order'), order)
 			request.session['pending_order'] = [] #clear cart
-			return HttpResponseRedirect(reverse('track_order', kwargs={'pk' : order.pk}))
+			redirect_view = 'order_payment' if order.payment_method == 'CardOnline' else 'track_order'
+			return HttpResponseRedirect(reverse(redirect_view, kwargs={'pk' : order.pk}))
 		context = {'form' : CreateOrderForm(user=self.request.user)}
 		return render(request, 'place_order.html', context)
 
@@ -88,9 +97,7 @@ class PlaceOrderView(View):
 	# 	kwargs.update({'user': self.request.user})
 	# 	return kwargs
 
-
-
-		
+	
 class OrderListView(ListView):
 	model = Order
 	template_name = 'orders.html'
@@ -181,10 +188,8 @@ def add_to_cart(request):
 	return JsonResponse({'message' : 'Item added to cart.'})
 
 
-
+@require_POST
 def remove_from_cart(request):
-	if request.method != 'POST':
-		raise Http404('Method not allowed')
 	item_id = int(request.POST.get('item_id'))
 	pending_order = [item for item in request.session['pending_order'] if item['id'] != item_id]
 	request.session['pending_order'] = pending_order
@@ -193,41 +198,72 @@ def remove_from_cart(request):
 def cart(request):
 	return JsonResponse(serialize_cart(request.session.get('pending_order')), safe=False)
 	
-#given cart representation stored inside session returns JSON serializable object 
-def serialize_cart(pending_order):
-	serialized = {'items' : []}
-	total_price = 0
-	for item in pending_order:
-		menu_item = MenuItem.objects.get(pk=item['item_id'])
-		addons = [MenuItemAddon.objects.get(pk=id_) for id_ in item['addon_ids']]
-		total_price += menu_item.price + sum(addon.price for addon in addons)
-		serialized_item =  {
-			'id' : item['id'],
-			'name' : menu_item.name,
-			'category' : menu_item.category.name,
-			'size' : menu_item.size.name if menu_item.size else None,
-			'base_price' : menu_item.price,
-			'total_price' : menu_item.price + sum(addon.price for addon in addons),
-			'addons' : [{'name': addon.name, 'price': addon.price} for addon in addons],
-		}	
-		serialized['items'].append(serialized_item)
-	serialized['total_price'] = total_price
-	print(serialized)
-	return serialized
+@login_required
+def order_payment(request, pk):
+	order = get_object_or_404(Order, pk=pk)
+	if order.customer != request.user:
+		raise PermissionDenied
+	if order.is_paid:
+		return HttpResponseRedirect(reverse('track_order', kwargs={'pk' : pk}))
 
-#adds all items from cart(pending_order stored in session)
-#to db and links them with order instance
-def save_cart(pending_order, order):
-	for item in pending_order:
-		menu_item = MenuItem.objects.get(pk=item['item_id'])
-		order_item = OrderItem(menu_item=menu_item, order=order)
-		order_item.save()
-		for addon_id in item['addon_ids']:
-			menu_item_addon = MenuItemAddon.objects.get(pk=addon_id)
-			order_item_addon = OrderItemAddon(
-				menu_item_addon=menu_item_addon, order_item=order_item)
-			order_item_addon.save()
+	#create stripe session
+	#redirect back to this view when payment completed or cancelled
+	success_redirect_url = request.build_absolute_uri(reverse('track_order', args=[order.pk]))
+	cancel_redirect_url = request.build_absolute_uri() 
+	session = stripe.checkout.Session.create(
+		payment_method_types=['card'],
+		line_items=[{
+			'price_data': {
+				'currency': 'usd',
+				'product': 'prod_HNt51ckSz46ZmG',
+				'unit_amount': int(float(order.total_price)/0.01),
+			},
+			'quantity': 1,
+		}],
+		mode='payment',
+		success_url=success_redirect_url,
+		cancel_url=cancel_redirect_url,
+		)
+	#create payment object
+	payment = Payment(
+		amount=order.total_price,
+		stripe_id=session.payment_intent,
+		order=order,
+		)
+	payment.save()
 
+	context = {
+		'order': order,
+		'STRIPE_PUBLISHABLE_KEY': settings.STRIPE_PUBLISHABLE_KEY,
+		'CHECKOUT_SESSION_ID': session.id
+	}
+	return render(request, 'order_payment.html', context)
 
+@csrf_exempt
+@require_POST
+def stripe_webhook(request):
+	payload = request.body
+	sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+	event = None
 
+	try:
+		event = stripe.Webhook.construct_event(
+			payload, sig_header, settings.STRIPE_ENDPOINT_SECRET
+		)
+	except ValueError as e:
+		# Invalid payload
+		return HttpResponse(status=400)
+	except stripe.error.SignatureVerificationError as e:
+		# Invalid signature
+		return HttpResponse(status=400)
+
+	# Handle the checkout.session.completed event
+	if event['type'] == 'checkout.session.completed':
+		session = event['data']['object']
+		# Fulfill the purchase...
+		payment = get_object_or_404(Payment, stripe_id=session.payment_intent)
+		payment.status = 'Completed'
+		payment.save()
+
+	return HttpResponse(status=200)
 	

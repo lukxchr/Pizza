@@ -146,3 +146,11 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000',
     'http://localhost:8000'
 ]
+
+#stripe
+
+STRIPE_SECRET_KEY = 'sk_test_oB2IcM8CFxvywpeB9SkRdaDO00HEeSnyK2'
+STRIPE_PUBLISHABLE_KEY = 'pk_test_FTdbafztSNkyaiz7usjTRJ5q00P2X506QI'
+STRIPE_ENDPOINT_SECRET = 'whsec_gNWp7QfiqP3gyMF6tK2g66zGHHJK750r'
+
+

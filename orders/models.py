@@ -92,12 +92,11 @@ PAYMENT_METHOD_CHOICES = [
 	('CardOnDelivery', 'Card on Delivery'),
 ]
 
-
 class Order(models.Model):
 	status = models.CharField(max_length=10, choices=ORDER_STATUS_CHOICES, default='Placed')
 	creation_datetime = models.DateTimeField(auto_now_add=True)
-	notes = models.CharField(max_length=128, blank=True, null=True)
 	payment_method = models.CharField(max_length=16, choices=PAYMENT_METHOD_CHOICES)
+	notes = models.CharField(max_length=128, blank=True, null=True)
 	delivery_estimate  = models.DateTimeField()
 	delivery_address = models.ForeignKey(Address, on_delete=models.PROTECT)
 	customer = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -106,6 +105,10 @@ class Order(models.Model):
 	@property
 	def total_price(self):
 		return sum(order_item.price for order_item in self.order_items.all())
+	
+	@property
+	def is_paid(self):
+		return self.payments.filter(status='Completed').exists()
 	
 
 	def __str__(self):
@@ -127,15 +130,20 @@ class OrderItemAddon(StandardStrMixin, models.Model):
 	menu_item_addon = models.ForeignKey(MenuItemAddon, on_delete=models.CASCADE)
 	order_item = models.ForeignKey(OrderItem, on_delete=models.CASCADE, related_name='addons')
 	
-	# @property
-	# def price(self):
-	# 	return self.menu_item_addon.price
 
-	# @property
-	# def order(self):
-	# 	return self.order_item.order
 
-	# def __str__(self):
-	# 	return f'OrderItemAddon: {self.menu_item_addon}'
 
+
+PAYMENT_STATUS_CHOICES = [
+	('Pending', 'Pending'),
+	('Completed', 'Completed'),
+	('Cancelled', 'Cancelled'),
+]
+
+class Payment(StandardStrMixin, models.Model):
+	creation_datetime = models.DateTimeField(auto_now_add=True)
+	status = models.CharField(max_length=16, choices=PAYMENT_STATUS_CHOICES, default='Pending')
+	amount = models.DecimalField(max_digits=8, decimal_places=2)
+	stripe_id = models.CharField(max_length=64, blank=True, null=True)
+	order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='payments')
 

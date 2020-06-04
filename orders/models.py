@@ -6,17 +6,14 @@ class StandardStrMixin():
 		fields = [f'{field.name}: {getattr(self, field.name)}' for field in self.__class__._meta.fields]
 		return f"{type(self).__name__}: {', '.join(fields)}"
 
-
 class Category(models.Model):
 	name = models.CharField(max_length=64)
 	is_pizza_category = models.BooleanField(default=False)
 	sort_order = models.IntegerField()
 	slug = models.SlugField(unique=True)
-
 	class Meta:
 		verbose_name_plural = 'Categories'
 		ordering = ['sort_order']
-	
 	def __str__(self):
 		return f'{self.name}'
 

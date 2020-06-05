@@ -1,6 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class StandardStrMixin():
+	def __str__(self):
+		fields = [f'{field.name}: {getattr(self, field.name)}' for field in self.__class__._meta.fields]
+		return f"{type(self).__name__}: {', '.join(fields)}"
+
 class Category(models.Model):
 	name = models.CharField(max_length=64)
 	is_pizza_category = models.BooleanField(default=False)
@@ -111,7 +116,7 @@ PAYMENT_STATUS_CHOICES = [
 	('Cancelled', 'Cancelled'),
 ]
 
-class Payment(StandardStrMixin, models.Model):
+class Payment(models.Model):
 	creation_datetime = models.DateTimeField(auto_now_add=True)
 	status = models.CharField(max_length=16, choices=PAYMENT_STATUS_CHOICES, default='Pending')
 	amount = models.DecimalField(max_digits=8, decimal_places=2)

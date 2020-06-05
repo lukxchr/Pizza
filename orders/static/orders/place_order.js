@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function renderCart() {
 	//fetch existing pending order
-	let response = await fetch('/getCart');
+	let response = await fetch('/get-cart');
 	if (!response.ok)
 		throw 'Failed to fetch pending order.';
 	const cart_data = await response.json();
@@ -117,7 +117,7 @@ Handlebars.registerHelper("counter", index => index + 1);
 function deleteCartItem(id) {
 	const form_data = new FormData();
 	form_data.append('item_id', id)
-	fetch(`/removeCartItem`, {
+	fetch(`/remove-cart-item`, {
 		method: 'post',
 		body: form_data,
 		headers: {

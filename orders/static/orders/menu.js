@@ -70,9 +70,8 @@ const cart_template = Handlebars.compile(`
 Handlebars.registerHelper('formatAddonPrice', price => price == 0.00 ? '' : `(+\$${price})`);
 
 async function renderCart() {
-	console.log('renderCart called');
 	//fetch existing pending order
-	let response = await fetch('/getCart');
+	let response = await fetch('/get-cart');
 	if (!response.ok)
 		throw 'Failed to fetch pending order.';
 	const cart_data = await response.json();
@@ -106,7 +105,7 @@ async function renderAddToCart(instance) {
 		e => {
 			const form_data = new FormData(e.target);
 			const headers = {'X-CSRFToken' : Cookies.get('csrftoken'),};
-			fetch('/addToCart', {method: 'post', body: form_data, headers: headers})
+			fetch('/add-to-cart', {method: 'post', body: form_data, headers: headers})
 			.then(response => response.json())
 			.then(data => {
 				instance.setContent(data.message);
@@ -118,7 +117,7 @@ async function renderAddToCart(instance) {
 
 function submit(form) {
 	const form_data = new FormData(form);
-	fetch('/addToCart', {method: 'post', body: form_data})
+	fetch('/add-to-cart', {method: 'post', body: form_data})
 		.then(response => {
 			if (!response.ok) {
 				throw 'Failed to add to cart.';

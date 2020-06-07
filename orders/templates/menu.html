@@ -4,7 +4,7 @@
 {% block body %} 
 	<div id="main-container" class="container">
 		<!-- left sidebar. nav with list of categories  -->
-		{% include "category-nav.html" %}    
+		{% include "_category-nav.html" %}    
 		<div id="category-detail" class="container">
 			<table id="menu-table">
 				<!-- table header. Normally empty cell followed by cells with distinct sizes. Or empty if menu items in given category don't have sizes  -->
@@ -60,7 +60,7 @@
 				{% endfor %}
 			</table>
 		</div>
-		{% include "cart.html" %}    
+		{% include "_cart.html" %}    
 	</div> 
 	<script type="module" src="{% static 'orders/menu.js' %}"></script>
 {% endblock %}

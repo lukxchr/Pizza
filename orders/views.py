@@ -82,7 +82,7 @@ class OrderListView(LoginRequiredMixin, ListView):
 @login_required
 def track_order(request, pk):
 	order = get_object_or_404(Order, pk=pk)
-	return render(request, 'order_track.html', {'order' : order})
+	return render(request, 'track_order.html', {'order' : order})
 
 def logout_view(request):
       logout(request)
@@ -104,7 +104,7 @@ def add_to_cart(request):
 	#validate n addons 
 	if len([addon for addon in addons if addon.price == 0]) != menu_item.n_addons:
 		return JsonResponse({
-			'message' : f'Please choose exactly {menu_item.n_addons} toppings'}, 
+			'message' : f'Please choose exactly {menu_item.n_addons} topping(s)'}, 
 			status=400)
 
 	#validate if addons allowed for menu item

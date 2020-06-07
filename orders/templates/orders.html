@@ -16,7 +16,7 @@
 			<td>{{ order.creation_datetime }}</td>
 			<td>${{ order.total_price }}</td>
 			<td>{{ order.get_status_display }}</td>
-			<td><a href="{% url "track_order" pk=order.pk %}">Details</a></td>
+			<td><a href="{% url 'track_order' pk=order.pk %}">Details</a></td>
 		</tr>
 		{% endfor %}
 	</table>

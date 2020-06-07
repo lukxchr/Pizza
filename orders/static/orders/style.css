@@ -1,5 +1,5 @@
 body {
-  background-image: url('background-1-full-size.jpg');
+  background-image: url('background-1-medium.jpg');
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: 100% 100%;
@@ -8,7 +8,12 @@ body {
   cursor: default;
 }
 
-
+.container {
+	border-radius: 2%;
+	padding: 1%;
+	height: 90%;
+	overflow: scroll;
+}
 
 a:visited, a:link, a:active
 {
@@ -16,9 +21,21 @@ a:visited, a:link, a:active
     text-decoration: none;
     font-weight: bold;
 }
-
 a:hover {
 	font-weight: bolder;
+	text-decoration: underline;
+}
+
+.fa:hover {
+	color: #f28f3b;
+	cursor: pointer;
+}
+
+button {
+	cursor: pointer;
+}
+button:disabled {
+	cursor: not-allowed;
 }
 
 #main-container {
@@ -28,15 +45,6 @@ a:hover {
 	height: 85vh;
 	width: 90%;
 	background-color: rgba(0, 0, 0, 0.3);
-	/*opacity: 0.3;	*/
-}
-
-
-.container {
-	border-radius: 2%;
-	padding: 1%;
-	height: 90%;
-	overflow: scroll;
 }
 
 #sidebar {
@@ -59,8 +67,6 @@ a:hover {
  margin: 5px;
 }
 
-
-
 #sidebar-right {
 	position: absolute;
 	right: 3%;
@@ -74,10 +80,18 @@ a:hover {
 	position: fixed;
 	top: 0%;
 	right: 0%;
-	width: 20%;
 	padding: 3px;
 	background-color: rgba(0, 0, 0, 0.6);
+	text-align: right;
+}
 
+#top-navbar li {
+	display: inline;
+}
+
+#top-navbar ul {
+	margin: 0;
+	padding: 0;
 }
 
 #category-detail {
@@ -86,10 +100,8 @@ a:hover {
 	top: 3%;
 	width: 45%;
 	background-color: rgba(0, 0, 0, 0.6);
+	text-align: right;
 }
-
-
-
 
 #cart-header {
 	font-size: 2rem;
@@ -100,16 +112,12 @@ a:hover {
 	margin-top: 10px;
 	margin-bottom: 10px;
     font-size: 1.2rem;
-    /*font-style: italic;*/
     line-height: 1.1;
 }
-
 
 table#menu-table {
 	border: none;
 	width: 100%;
-	/*border-collapse: collapse;*/
-
 	font-size: 1.2em;
 }
 
@@ -120,7 +128,6 @@ td {
 
 td.left-col-td {
 	text-align: left;
-
 }
 
 #order-items-table, #orders-table {
@@ -133,13 +140,11 @@ td.left-col-td {
 	border: solid;
 	font-size: 1.2rem;
 	background-color: rgba(0, 0, 0, 0.6);
-	
 }
 
 td.item-name-col-td {
 	text-align: left;
 }
-
 
 .btn {
 	background-color: Transparent;
@@ -148,28 +153,9 @@ td.item-name-col-td {
 	cursor: pointer;
 }
 
-.fa:hover {
-	color: #f28f3b;
-	cursor: pointer;
-}
-
-button {
-	cursor: pointer;
-}
-button:disabled {
-	cursor: not-allowed;
-}
-
-
 .tippy-content {
 	text-align: left;
 }
-
-
-a:hover {
-	text-decoration: underline;
-}
-
 
 /*place_order*/
 #add-address-btn {

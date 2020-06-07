@@ -1,7 +1,9 @@
 from .models import MenuItem, MenuItemAddon, OrderItem, OrderItemAddon
 from collections import OrderedDict
 
-#given cart representation stored inside session returns JSON serializable object 
+#given cart representation stored inside session (just ids)
+#pulls menu item/addon details from db
+#and returns JSON serializable object 
 def serialize_cart(pending_order):
 	serialized = {'items' : []}
 	total_price = 0
@@ -35,8 +37,8 @@ def save_cart(pending_order, order):
 				menu_item_addon=menu_item_addon, order_item=order_item)
 			order_item_addon.save()
 
-#given category returns data for menu template
-#{'header': [], 'rows': [[],]}
+#given category returns data for menu template 
+#to be displayd as matrix (sizes->rows, item names->rows)
 def build_menu_table(category):
 	menu_items = MenuItem.objects.filter(category=category) 
 	#build list with distinct sizes/item names while keeping order 

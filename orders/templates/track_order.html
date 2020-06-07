@@ -3,18 +3,12 @@
 
 {% block body %} 
 <div id="main-container" class="container">
-
 	<h3>Thanks for your order!</h3>
 	<div id="order-info">
-		
-	
 		Order status: <span id="order-status" data-order="{{ order.id }}">{{ order.get_status_display }}</span><br>
 		Estimated delivery: <span id="delivery-estimate"> ? </span>
-
 	</div>
-
 	<hr>
-
 	<h3>Delivery and payment details:</h3>
 	{{ order.delivery_address.name }}<br>
 	{{ order.delivery_address.address1 }}<br>
@@ -22,7 +16,6 @@
 	{{ order.delivery_address.zip_code }}<br>
 	{{ order.delivery_address.city }}<br>
 	<br>
-
 	Payment method: {{ order.get_payment_method_display }}
 	<br>
 	Payment status: 
@@ -30,7 +23,6 @@
 	{% if order.is_paid %} Paid {% else %} Pending {% endif %}
 	</span>
 	<a href="{% url 'order_payment' pk=order.pk %}">Payment page</a>
-	
 	<br>
 	Order total: ${{ order.total_price }}
 	<script type="module" src="{% static 'orders/order_track.js' %}"></script>

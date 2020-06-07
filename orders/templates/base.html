@@ -4,18 +4,22 @@
 <html>
 <head>
 	<title>{% block title %}{% endblock %}</title>
+	<!-- Font Awesome -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<link rel="stylesheet" type="text/css" href="{% static 'orders/style.css' %}"/>
 </head>
 <body>
-	{% if user.is_authenticated %}
-
 	<div id="top-navbar">
-			<a href="{% url 'index' %}">Menu</a>
-			<a href="{% url 'orders' %}">Orders</a>
-			<a href="{% url 'logout' %}">Log out ({{ user }})</a>
+		<ul>
+			<li><a href="{% url 'index' %}">Menu</a></li>
+			{% if user.is_authenticated %}
+			<li><a href="{% url 'orders' %}">Orders</a></li>
+			<li><a href="{% url 'logout' %}">Log out ({{ user }})</a></li>
+			{% else %}
+			<li><a href="{% url 'login' %}">Log in</a></li>
+			{% endif %}
+		</ul>
 	</div>
-	{% endif %}
 	{% block body %}
     {% endblock %}
     <!-- popper.js & tippy.js -->
@@ -25,6 +29,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
     <!-- JavaScript Cookie -->
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
-		
 </body>
 </html>

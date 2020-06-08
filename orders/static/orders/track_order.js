@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 	setInterval(updateOrderStatus, 1000)
-	});
+});
 
 function updateOrderStatus() {
 	const payment_status = document.querySelector('#payment-status');
@@ -14,7 +14,8 @@ function updateOrderStatus() {
 			payment_status.innerHTML = (data.is_paid) ? 'Completed' : 'Pending';
 			order_status.innerHTML = data.status;
 			const delivery_datetime = new Date(data.delivery_estimate);
-			delivery_estimate.innerHTML = delivery_datetime;
+			const now = new Date()
+			delivery_estimate.innerHTML = `${delivery_datetime.getHours()}:${delivery_datetime.getMinutes()} (${parseInt((delivery_datetime - now)/1000/60)} minutes)`;
 		});
 	});
 }

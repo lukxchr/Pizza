@@ -1,10 +1,11 @@
+import {add_to_cart_form_template, cart_template} from './templates.js'
+
 document.addEventListener('DOMContentLoaded', () => {
 	//static tippy instances(set inside html template)
 	//e.g. info toolptip for special menu items
 	tippy('[data-tippy-content]', {
 		placement: 'right',
 	});
-
 	//add to cart for items with addons
 	//1)init tippy with placeholder 
 	//2)get available addons via ajax and show form inside tippy
@@ -21,53 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
 	  	.catch(err => instance.setContent(err));	
 	  }
 	});
-
 	//add to cart for items without addons
 	//add to cart via ajax and show confrimation inside tippy
 	document.querySelectorAll('.add-to-cart-form')
 		.forEach(form => form.onsubmit = 
 			e => submit(e.target) 
 	);
-
 	//render DOM elements
 	renderCart();
 });
-
-
-//templates
-
-const add_to_cart_form_template = Handlebars.compile(`
-<form class="add-to-cart-form">
-<input type="hidden" name="item_id" value={{ item_id }}>
-{{#each addons}}
-	<label>{{ this.name }}{{ formatAddonPrice this.price }}</label>
-	<input type="checkbox" name="addon" value="{{ this.id }}">
-	<br>
-{{/each}}
-<input type=submit value="Add to Cart">
-</form>`);
-
-
-
-const cart_template = Handlebars.compile(`
-	{{#each items}}
-		<b>{{this.size}} {{this.category}}</b>
-		</br>
-		{{this.name}}
-		</br>
-		\${{this.base_price}}
-		</br>
-		{{#each this.addons}}
-			+{{this.name}}
-			{{ formatAddonPrice this.price }}
-			<br/>
-		{{/each}}
-		<br/>
-	{{/each}}
-	<div id="total-price"><h3>Total: \${{total_price}}</h3></div>`);
-
-//returns empty string if price==0.00 otherwise adds $ symbol in the front
-Handlebars.registerHelper('formatAddonPrice', price => price == 0.00 ? '' : `(+\$${price})`);
 
 async function renderCart() {
 	//fetch existing pending order
@@ -77,7 +40,6 @@ async function renderCart() {
 	const cart_data = await response.json();
 	if (cart_data.items.length == 0)
 		return; //nothing to render
-
 	const cart = cart_template({
 		items: cart_data.items, total_price: cart_data.total_price});
 	const cart_body = document.querySelector('#cart-body');
@@ -111,7 +73,7 @@ async function renderAddToCart(instance) {
 				instance.setContent(data.message);
 				renderCart();
 			});
-			return false; 
+			return false; //prevent page reload on submit
 		}
 }
 
@@ -135,5 +97,5 @@ function submit(form) {
 			});
 		})
 		.catch(err => console.log(err));	
-	return false;
+	return false; //prevent page reload on submit
 }

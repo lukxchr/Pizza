@@ -25,6 +25,6 @@
 	<a href="{% url 'order_payment' pk=order.pk %}">Payment page</a>
 	<br>
 	Order total: ${{ order.total_price }}
-	<script type="module" src="{% static 'orders/order_track.js' %}"></script>
+	<script type="module" src="{% static 'orders/track_order.js' %}"></script>
 </div>
 {% endblock %}

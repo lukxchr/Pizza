@@ -22,7 +22,6 @@
 	<span id="payment-status" data-order="{{ order.id }}">
 	{% if order.is_paid %} Paid {% else %} Pending {% endif %}
 	</span>
-	<a href="{% url 'order_payment' pk=order.pk %}">Payment page</a>
 	<br>
 	Order total: ${{ order.total_price }}
 	<script type="module" src="{% static 'orders/track_order.js' %}"></script>

@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-	setInterval(updateOrderStatus, 1000)
+	setInterval(updateOrderStatus, 30_000)
 });
 
 function updateOrderStatus() {

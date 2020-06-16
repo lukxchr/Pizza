@@ -7,6 +7,7 @@
 			<td>#</td>
 			<td>Date</td>
 			<td>Total</td>
+			<td>Payment</td>
 			<td>Status</td>
 			<td>Details</td>
 		</tr>
@@ -15,6 +16,17 @@
 			<td>{{ forloop.counter }}</td>
 			<td>{{ order.creation_datetime }}</td>
 			<td>${{ order.total_price }}</td>
+			<td>
+				{{ order.get_payment_method_display}}
+				{% if order.payment_method == "CardOnline" %} 
+					{% if order.is_paid %}
+					(Paid)
+					{% else %}
+					(<a href="{% url 'order_payment' pk=order.pk %}">Pending</a>)
+					{% endif %}
+				{% endif %}
+				
+			</td>
 			<td>{{ order.get_status_display }}</td>
 			<td><a href="{% url 'track_order' pk=order.pk %}">Details</a></td>
 		</tr>

@@ -16,13 +16,9 @@ async function renderCart() {
 	if (!response.ok)
 		throw 'Failed to fetch pending order.';
 	const cart_data = await response.json();
-	if (cart_data.items.length == 0)
-		return; //nothing to render
-
 	const cart = cart_table_template({items: cart_data.items, total_price: cart_data.total_price});
 	document.querySelector('#cart-items-container').innerHTML = cart;
 	document.querySelector('#total-order-price').innerHTML = `Total: \$${cart_data.total_price}`;
-
 	//init tippy tooltips
 	tippy('[data-tippy-content]', {
 		placement: 'right',

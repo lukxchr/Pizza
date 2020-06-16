@@ -3,11 +3,8 @@
 
 {% block body %} 
 	<div id="main-container" class="container">
-		Payment status: {{ order.is_paid }}
-		{% for payment in order.payments.all %}
-			{{ payment }}<br>
-		{% endfor %}
-		<button id="stripe-btn">Pay with Stripe</button>
+		<h3>Your order payment is pending.</h3> 
+		<button id="stripe-btn" class="basic-btn">Pay ${{ order.total_price }} with Stripe</button>
 	</div>
 	<script src="https://js.stripe.com/v3/"></script>
 	<script type="text/javascript">

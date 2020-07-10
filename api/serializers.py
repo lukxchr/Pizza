@@ -27,19 +27,31 @@ class AddressSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Address
 		fields = ['id', 'name', 'address1', 'address2', 'zip_code', 'city', 'user']
-
+	def validate(self, data):
+		if data['user'] != self.context['request'].user:
+			raise serializers.ValidationError('You are not allowed to create address for this user.')
+		return data
 
 class OrderItemAddonSerializer(serializers.ModelSerializer):
 	price = serializers.ReadOnlyField()
 	class Meta:
 		model = OrderItemAddon
 		fields = ['id', 'menu_item_addon', 'order_item', 'price']
+	def validate(self, data):
+		if data['order_item'].order.customer != self.context['request'].user:
+			raise serializers.ValidationError('You are not allowed to create order item addon for this order item.')
+		return data
+
 
 class OrderItemSerializer(serializers.ModelSerializer):
 	price = serializers.ReadOnlyField()
 	class Meta:
 		model = OrderItem
 		fields = ['id', 'menu_item', 'order', 'price']
+	def validate(self, data):
+		if data['order'].customer != self.context['request'].user:
+			raise serializers.ValidationError('You are not allowed to create order item for this order.')
+		return data
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -48,10 +60,12 @@ class OrderSerializer(serializers.ModelSerializer):
 		model = Order 
 		fields = ['id', 'status', 'creation_datetime', 'delivery_address', 'customer', 'total_price']
 	def validate(self, data):
-		if data['status'] == 'Pending' and Order.objects.filter(customer=data['customer'], status='Pending').exists():
-			raise serializers.ValidationError('Pending order already exists for this customer.')
-		return data 
-
+		user = self.context['request'].user
+		if data['customer'] != user:
+			raise serializers.ValidationError('You are not allowed to create order for this user.')
+		elif data['delivery_address'].user != user:
+			raise serializers.ValidationError('You are not allowed to create order for this address.')
+		return data
 
 #serializers used by OrderDetailSerializer to represent nested objects (fewer fields are exposed)
 class CategoryBasicSerializer(serializers.ModelSerializer):

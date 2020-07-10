@@ -62,7 +62,7 @@ button:disabled {
 	left: 3%;
 	top: 20%;
 	width: 20%;
-	height: 50%;
+	height: 30%;
 	background-color: rgba(0, 0, 0, 0.6);
 	font-size: 2rem;
 	text-align: center;
@@ -79,7 +79,7 @@ button:disabled {
 	right: 3%;
 	top: 3%;
 	width: 20%;
-	height: 50%;
+	height: 30%;
 	background-color: rgba(0, 0, 0, 0.6);
 }
 #top-navbar {
@@ -151,4 +151,8 @@ td.item-name-col-td {
 }
 #add-address-btn {
 	font-size: 1rem;
+}
+.errorlist {
+	color: red;
+	font-style: bold;
 }

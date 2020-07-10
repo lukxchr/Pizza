@@ -1,5 +1,7 @@
+var timerID;
 document.addEventListener('DOMContentLoaded', () => {
-	setInterval(updateOrderStatus, 30_000)
+  updateOrderStatus();
+	timerID = setInterval(updateOrderStatus, 30_000);
 });
 
 function updateOrderStatus() {
@@ -12,10 +14,15 @@ function updateOrderStatus() {
 			throw 'Failed to update order status.'
 		response.json().then(data => {
 			payment_status.innerHTML = (data.is_paid) ? 'Completed' : 'Pending';
-			order_status.innerHTML = data.status;
+      order_status.innerHTML = data.status;
 			const delivery_datetime = new Date(data.delivery_estimate);
 			const now = new Date()
-			delivery_estimate.innerHTML = `${delivery_datetime.getHours()}:${delivery_datetime.getMinutes()} (${parseInt((delivery_datetime - now)/1000/60)} minutes)`;
+			delivery_estimate.innerHTML = `${parseInt((delivery_datetime - now)/1000/60)} minutes`;
+       //if delivered stop updating order status and hide delivery time
+      if (data.status === 'Delivered') {
+        clearInterval(timerID);
+        document.querySelector('#delivery-estimate-wrapper').hidden = true;
+      } 
 		});
 	});
 }

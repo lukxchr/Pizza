@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "_base.html" %}
 {% load static %}
 
 {% block body %} 
@@ -6,7 +6,7 @@
 	<h3>Thanks for your order!</h3>
 	<div id="order-info">
 		Order status: <span id="order-status" data-order="{{ order.id }}">{{ order.get_status_display }}</span><br>
-		Estimated delivery: <span id="delivery-estimate"> ? </span>
+		<span id="delivery-estimate-wrapper">Estimated delivery: <span id="delivery-estimate">?</span></span>
 	</div>
 	<hr>
 	<h3>Delivery and payment details:</h3>

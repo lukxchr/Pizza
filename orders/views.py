@@ -3,10 +3,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseBadRequest, HttpResponse, HttpResponseRedirect, Http404, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView, View
+from django.views.generic import CreateView, ListView, View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
@@ -59,6 +59,9 @@ class AddressCreateView(LoginRequiredMixin, CreateView):
 
 class PlaceOrderView(LoginRequiredMixin, View):
 	def get(self, request):
+		#redirect back to index if cart is empty
+		if not request.session.get('pending_order'):
+			return HttpResponseRedirect(reverse('index'))
 		context = {'form' : CreateOrderForm(user=self.request.user)}
 		return render(request, 'place_order.html', context)
 	def post(self, request):
@@ -79,9 +82,14 @@ class OrderListView(LoginRequiredMixin, ListView):
 	model = Order
 	template_name = 'orders.html'
 
+	def get_queryset(self):
+		return Order.objects.filter(customer=self.request.user)
+
 @login_required
 def track_order(request, pk):
 	order = get_object_or_404(Order, pk=pk)
+	if order.customer != request.user:
+		raise PermissionDenied
 	return render(request, 'track_order.html', {'order' : order})
 
 def logout_view(request):

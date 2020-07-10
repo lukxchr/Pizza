@@ -1,10 +1,8 @@
 from rest_framework import generics 
 from django_filters.rest_framework import DjangoFilterBackend
 
-# Create your views here.
-
 from orders.models import *
-from .permissions import IsAddressUser, IsOrderCustomer
+from .permissions import *
 from .serializers import *
 
 
@@ -14,28 +12,9 @@ class MenuItemView(generics.ListAPIView):
 	#enable filtering by any exposed field
 	filterset_fields = serializer_class.Meta.fields
 
-	# def get_queryset(self):
-	# 	queryset = MenuItem.objects.all()
-	# 	filter_kwargs = {}
-	# 	for field in self.serializer_class.Meta.fields:
-	# 		value = self.request.query_params.get(field)
-	# 		if value:
-	# 			filter_kwargs[field] = value
-	# 	return queryset.filter(**filter_kwargs)
-		
-
-# class MenuItemView(generics.ListCreateAPIView):
-# 	queryset = MenuItem.objects.all()
-# 	serializer_class = MenuItemSerializer
-
 class DetailMenuItemView(generics.RetrieveAPIView):
 	queryset = MenuItem.objects.all()
 	serializer_class = MenuItemSerializer
-
-# class DetailMenuItem(generics.RetrieveUpdateDestroyAPIView):
-# 	queryset = MenuItem.objects.all()
-# 	serializer_class = MenuItemSerializer
-
 
 class MenuItemAddonView(generics.ListAPIView):
 	queryset = MenuItemAddon.objects.all()
@@ -47,7 +26,6 @@ class DetailMenuItemAddonView(generics.RetrieveAPIView):
 	queryset = MenuItemAddon.objects.all()
 	serializer_class = MenuItemAddonSerializer
 
-
 class CategoryView(generics.ListAPIView):
 	queryset = Category.objects.all()
 	serializer_class = CategorySerializer
@@ -57,7 +35,6 @@ class CategoryView(generics.ListAPIView):
 class DetailCategoryView(generics.RetrieveAPIView):
 	queryset = Category.objects.all()
 	serializer_class = CategorySerializer
-
 
 class SizeView(generics.ListAPIView):
 	queryset = Size.objects.all()
@@ -69,42 +46,42 @@ class DetailSizeView(generics.RetrieveAPIView):
 	queryset = Size.objects.all()
 	serializer_class = SizeSerializer
 
-#delete? or add permission
 class AddressView(generics.ListCreateAPIView):
-	queryset = Address.objects.all()
+	permission_classes = (IsAddressUser,)
 	serializer_class = AddressSerializer
-	#enable filtering by any exposed field
-	filterset_fields = serializer_class.Meta.fields
+	# filterset_fields = serializer_class.Meta.fields
+	def get_queryset(self):
+		return Address.objects.filter(user=self.request.user)
 
-class AddressDetailView(generics.RetrieveUpdateDestroyAPIView):
+class AddressDetailView(generics.RetrieveDestroyAPIView):
 	permission_classes = (IsAddressUser,)
 	queryset = Address.objects.all()
 	serializer_class = AddressSerializer
 
 class OrderView(generics.ListCreateAPIView):
-	queryset = Order.objects.all()
+	permission_classes = (IsOrderCustomer,)
 	serializer_class = OrderSerializer
 	filterset_fields = ['id', 'status', 'creation_datetime', 'delivery_address', 'customer']
+	def get_queryset(self):
+		return Order.objects.filter(customer=self.request.user)
 
 class OrderDetailView(generics.RetrieveDestroyAPIView):
 	permission_classes = (IsOrderCustomer,)
 	queryset = Order.objects.all()
 	serializer_class = OrderDetailSerializer
 
-class OrderItemView(generics.ListCreateAPIView):
-	queryset = OrderItem.objects.all()
+class CreateOrderItemView(generics.CreateAPIView):
 	serializer_class = OrderItemSerializer
-	filterset_fields = ['id', 'menu_item', 'order']
 
 class OrderItemDetailView(generics.RetrieveDestroyAPIView):
+	permission_classes = (IsOrderItemCustomer,)
 	queryset = OrderItem.objects.all()
 	serializer_class = OrderItemSerializer
 
-class OrderItemAddonView(generics.ListCreateAPIView):
-	queryset = OrderItemAddon.objects.all()
+class CreateOrderItemAddonView(generics.CreateAPIView):
 	serializer_class = OrderItemAddonSerializer
-	filterset_fields = ['id', 'menu_item_addon', 'order_item',]
 
 class OrderItemAddonDetailView(generics.RetrieveDestroyAPIView):
+	permission_classes = (IsOrderItemAddonCustomer,)
 	queryset = OrderItemAddon.objects.all()
 	serializer_class = OrderItemAddonSerializer

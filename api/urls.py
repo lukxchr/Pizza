@@ -15,8 +15,8 @@ urlpatterns = [
 	path('addresses/<int:pk>', AddressDetailView.as_view()),
 	path('orders/', OrderView.as_view()),
 	path('orders/<int:pk>', OrderDetailView.as_view()),
-	path('order_items/', OrderItemView.as_view()),
+	path('order_items/', CreateOrderItemView.as_view()),
 	path('order_items/<int:pk>', OrderItemDetailView.as_view()),
-	path('order_item_addons/', OrderItemAddonView.as_view()),
+	path('order_item_addons/', CreateOrderItemAddonView.as_view()),
 	path('order_item_addons/<int:pk>', OrderItemAddonDetailView.as_view()),
 ]

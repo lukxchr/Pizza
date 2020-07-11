@@ -51,8 +51,7 @@ async function renderCart() {
 
 async function renderAddToCart(instance) {
 	const item_id = instance.reference.dataset.item;
-	const csrf_token = instance.reference.dataset.csrfToken;
-	
+
 	//fetch list of available addons
 	const response = await fetch(`/api/menu_item_addons/?allowed_for=${item_id}`);
 	if (!response.ok) 
@@ -61,7 +60,7 @@ async function renderAddToCart(instance) {
 	
 	//build add_to_cart_form with the addons and display inside tippy instance 
 	const form = add_to_cart_form_template({
-		item_id: item_id, csrf_token: csrf_token, addons: addons});
+		item_id: item_id, addons: addons});
 	instance.setContent(form);
 	instance.popper.childNodes[0].onsubmit =
 		e => {

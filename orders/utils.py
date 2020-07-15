@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 from .models import MenuItem, MenuItemAddon, OrderItem, OrderItemAddon
 
+
 def serialize_cart(pending_order):
     """given cart representation stored inside session (list of ids)
     pulls menu item/addon details from db and returns JSON serializable object

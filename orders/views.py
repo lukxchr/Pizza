@@ -32,6 +32,7 @@ class LoginView(View):
             return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, 'login.html')
+
     def post(self, request):
         username = request.POST['username']
         password = request.POST['password']
@@ -56,6 +57,7 @@ class AddressCreateView(LoginRequiredMixin, CreateView):
     form_class = CreateAddressForm
     success_url = reverse_lazy('place_order')
     template_name = 'create_address.html'
+
     def get_initial(self, *args, **kwargs):
         initial = super(AddressCreateView, self).get_initial(*args, **kwargs)
         initial['user'] = self.request.user
@@ -69,6 +71,7 @@ class PlaceOrderView(LoginRequiredMixin, View):
             return HttpResponseRedirect(reverse('index'))
         context = {'form' : CreateOrderForm(user=self.request.user)}
         return render(request, 'place_order.html', context)
+
     def post(self, request):
         form = CreateOrderForm(request.POST, user=self.request.user)
         if form.is_valid():
@@ -233,4 +236,3 @@ def stripe_webhook(request):
         payment.status = 'Completed'
         payment.save()
     return HttpResponse(status=200)
-    

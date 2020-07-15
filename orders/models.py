@@ -138,6 +138,7 @@ class OrderItemAddon(models.Model):
     menu_item_addon = models.ForeignKey(MenuItemAddon, on_delete=models.CASCADE)
     order_item = models.ForeignKey(OrderItem, on_delete=models.CASCADE,
                                    related_name='addons')
+
     def __str__(self):
         return f'OrderItemAddon: {self.menu_item_addon}, \
         OrderItem: {self.order_item.menu_item.name}, price: {self.menu_item_addon.price}'
@@ -156,6 +157,6 @@ class Payment(models.Model):
     stripe_id = models.CharField(max_length=64, blank=True, null=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE,
                               related_name='payments')
+
     def __str__(self):
         return f'Payment: status: {self.status}, amount: {self.amount}, order: {self.order}'
-        

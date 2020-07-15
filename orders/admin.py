@@ -4,6 +4,7 @@ from django.utils.timezone import now
 from .models import Category, Size, MenuItem, MenuItemAddon, Address, Order, \
                     OrderItem, OrderItemAddon, Payment
 
+
 class OrderProxy(Order):
     class Meta:
         proxy = True
@@ -11,7 +12,7 @@ class OrderProxy(Order):
     def __str__(self):
         time_since_created = now() - self.creation_datetime
         return f'''Placed {str(time_since_created).split(".")[0]} ago |
-            payment_method: {self.payment_method} | paid: {self.is_paid} 
+            payment_method: {self.payment_method} | paid: {self.is_paid}
             | by: {self.customer}'''
 
 
@@ -32,6 +33,7 @@ class OrderProxyAdmin(admin.ModelAdmin):
         'creation_datetime', 'customer', 'delivery_address', 'notes',
         'total_price', 'payment_method', 'is_paid',
         ]
+
 
 admin.site.register(Category)
 admin.site.register(Size)
